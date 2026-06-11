@@ -43,6 +43,12 @@ little recent international history.
    coin flip) to estimate each team's probability of reaching each stage and winning it all.
    The bracket is a simplified 32-team seeding (not FIFA's official third-place lookup table)
    and knockout matches are treated as neutral venue.
+10. **Top scorer projection** — `predict_top_scorers.py` combines each player's
+    recency-weighted share of their national team's historical goals (from
+    `goalscorers.csv`, own goals excluded) with each team's expected total tournament goals
+    (attack rating x expected number of matches, the latter from the tournament simulation)
+    to rank Golden Boot contenders. This is a "recent form" proxy, not squad-aware - it
+    doesn't account for injuries, retirements, or final squad selection.
 
 ## Quick Start
 
@@ -71,6 +77,9 @@ python train_ratings.py
 
 # Monte Carlo tournament winner odds (writes outputs/worldcup_2026_simulation.csv)
 python simulate_tournament.py --simulations 2000
+
+# Golden Boot contenders (writes outputs/worldcup_2026_top_scorers.csv)
+python predict_top_scorers.py --top 25
 ```
 
 Note: team names follow the source dataset's conventions, e.g. `Czech Republic` (not
@@ -116,4 +125,4 @@ All tunables are in `configs/config.yaml`:
 
 - [x] Per-match score prediction (group stage)
 - [x] Knockout-stage / tiebreaker simulation (Monte Carlo tournament winner odds)
-- [ ] Top scorer prediction (player-level goal rates from `goalscorers.csv`)
+- [x] Top scorer prediction (player-level goal shares from `goalscorers.csv`)
