@@ -1,0 +1,37 @@
+data:
+  results_url: "https://raw.githubusercontent.com/martj42/international_results/master/results.csv"
+  goalscorers_url: "https://raw.githubusercontent.com/martj42/international_results/master/goalscorers.csv"
+  fifa_ranking_url: "https://raw.githubusercontent.com/Dato-Futbol/fifa-ranking/master/ranking_fifa_historical.csv"
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  fixtures_dir: "data/fixtures"
+
+model:
+  # Time-decay: weight = exp(-decay_rate * days_ago). Half-life ~ ln(2)/decay_rate.
+  decay_half_life_days: 730   # ~2 years
+
+  # Lookback window for matches used in fitting (older matches get ~0 weight anyway,
+  # but this caps compute and avoids long-defunct national teams).
+  lookback_years: 12
+
+  # FIFA-ranking prior: pulls each team's attack/defense toward a rating implied
+  # by its latest FIFA ranking points (z-score scaled by this constant).
+  fifa_prior_scale: 0.35
+
+  # L2 regularization strength toward the FIFA prior. Higher = trust FIFA ranking
+  # more, data-driven fit less. Mostly matters for teams with little history.
+  fifa_prior_weight: 5.0
+
+  # Dixon-Coles low-score correlation parameter is fit jointly; this is just
+  # the optimizer starting point.
+  rho_init: -0.05
+
+  # Host nations get a home-advantage boost only in their own country's matches.
+  host_nations:
+    - "Mexico"
+    - "Canada"
+    - "United States"
+
+tournament:
+  groups_file: "data/fixtures/worldcup_2026_groups.csv"
+  fixtures_file: "data/fixtures/worldcup_2026_fixtures.csv"
