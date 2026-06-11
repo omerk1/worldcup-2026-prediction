@@ -85,7 +85,8 @@ def get_played_matches(
     ].copy()
 
     if live_results_df is not None and len(live_results_df):
-        merged = results_df.merge(
+        unplayed = results_df[results_df["home_score"].isna()]
+        merged = unplayed.merge(
             live_results_df, on=["date", "home_team", "away_team"], suffixes=("", "_live")
         )
         merged = merged[merged["home_score_live"].notna()]
