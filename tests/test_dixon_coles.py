@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from src.models.dixon_coles import DixonColesModel, _fifa_priors, fit_dixon_coles
+from src.models.dixon_coles import DixonColesModel, _strength_priors, fit_dixon_coles
 
 
 def make_model():
@@ -35,12 +35,23 @@ def test_host_advantage_increases_home_expected_goals():
     assert lam_home_host > lam_home_neutral
 
 
-def test_fifa_prior_ranks_strong_team_above_weak_team():
+def test_strength_prior_ranks_strong_team_above_weak_team():
     teams = ["Strong", "Weak"]
     fifa_points = pd.Series({"Strong": 1900.0, "Weak": 900.0})
-    attack_prior, defense_prior = _fifa_priors(teams, fifa_points, scale=0.35)
+    elo_ratings = {"Strong": 1700.0, "Weak": 1300.0}
+    attack_prior, defense_prior = _strength_priors(teams, fifa_points, elo_ratings, scale=0.35)
     assert attack_prior[0] > attack_prior[1]
     assert defense_prior[0] > defense_prior[1]
+
+
+def test_strength_prior_handles_missing_data():
+    teams = ["Strong", "Weak", "Unknown"]
+    fifa_points = pd.Series({"Strong": 1900.0, "Weak": 900.0})
+    elo_ratings = {"Strong": 1700.0, "Weak": 1300.0}
+    attack_prior, defense_prior = _strength_priors(teams, fifa_points, elo_ratings, scale=0.35)
+    assert np.isfinite(attack_prior).all()
+    assert np.isfinite(defense_prior).all()
+    assert attack_prior[2] == 0.0
 
 
 def test_fit_dixon_coles_recovers_reasonable_params():
@@ -63,15 +74,30 @@ def test_fit_dixon_coles_recovers_reasonable_params():
         "home_score": home_score,
         "away_score": away_score,
         "neutral": False,
+        "tournament": "Friendly",
     })
 
     fifa_points = pd.Series({t: 1500.0 for t in teams})
+    elo_ratings = {t: 1500.0 for t in teams}
     config = {
-        "decay_half_life_days": 730,
-        "fifa_prior_scale": 0.35,
-        "fifa_prior_weight": 5.0,
-        "rho_init": -0.05,
+        "model": {
+            "decay_half_life_days": 730,
+            "strength_prior_scale": 0.35,
+            "strength_prior_weight": 5.0,
+            "rho_init": -0.05,
+            "min_fifa_points_threshold": 1100,
+        },
+        "tournament_weights": {
+            "world_cup": 2.5,
+            "continental": 1.5,
+            "qualifier": 1.0,
+            "friendly": 0.3,
+            "other": 0.5,
+            "world_cup_names": ["FIFA World Cup"],
+            "continental_names": [],
+            "qualifier_keywords": ["qualification", "Nations League"],
+        },
     }
-    model = fit_dixon_coles(matches, fifa_points, config, as_of=dates.max())
+    model = fit_dixon_coles(matches, fifa_points, elo_ratings, config, as_of=dates.max())
     assert set(model.teams) == set(teams)
     assert model.gamma >= 0

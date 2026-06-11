@@ -1,4 +1,4 @@
-"""Dixon-Coles Poisson model with time-decay weighting and a FIFA-ranking prior.
+"""Dixon-Coles Poisson model with time-decay weighting and a strength prior.
 
 Each team i gets an attack rating (alpha_i) and defense rating (beta_i).
 Higher beta_i means a STRONGER defense (it subtracts from opponents'
@@ -10,10 +10,14 @@ expected goals). Expected goals for a match home vs away:
 Scores are Poisson(lambda) with the Dixon-Coles low-score correlation
 correction (tau) for (0,0), (1,0), (0,1), (1,1).
 
-Parameters are fit by maximizing a time-weighted log-likelihood plus an L2
-penalty pulling each team's (alpha, beta) toward a prior derived from its
-FIFA ranking points. This keeps data-rich teams driven by results while
-sparse-data teams fall back to a sensible "tier" based on FIFA ranking.
+Parameters are fit by maximizing a log-likelihood over historical matches,
+weighted by both recency (time-decay) and tournament importance (World Cup >
+continental > qualifiers > friendlies), plus an L2 penalty pulling each
+team's (alpha, beta) toward a strength prior blended from FIFA ranking points
+and self-computed Elo ratings. This keeps data-rich teams driven by results
+while sparse-data teams fall back to a sensible "tier" based on global
+standing. Matches where the weaker side is below `min_fifa_points_threshold`
+are excluded from fitting to avoid "blowout vs minnow" distortion.
 """
 from __future__ import annotations
 
@@ -27,7 +31,7 @@ from scipy.optimize import minimize
 from scipy.special import gammaln
 from scipy.stats import poisson
 
-from src.data_processing.data_loader import FIFA_NAME_MAP
+from src.data_processing.data_loader import FIFA_NAME_MAP, tournament_weight
 
 
 def time_weights(dates: pd.Series, as_of: pd.Timestamp, half_life_days: float) -> np.ndarray:
@@ -161,31 +165,77 @@ class DixonColesModel:
         )
 
 
-def _fifa_priors(teams: list[str], fifa_points: pd.Series, scale: float) -> tuple[np.ndarray, np.ndarray]:
-    """Map FIFA ranking points to (attack, defense) priors.
+def _zscore(values: np.ndarray) -> np.ndarray:
+    """Z-score `values`, leaving NaNs (missing data) as NaN."""
+    valid = ~np.isnan(values)
+    if not valid.any():
+        return np.full_like(values, np.nan)
+    mean_v, std_v = values[valid].mean(), values[valid].std()
+    z = np.full_like(values, np.nan)
+    if std_v == 0:
+        z[valid] = 0.0
+    else:
+        z[valid] = (values[valid] - mean_v) / std_v
+    return z
 
+
+def _strength_priors(
+    teams: list[str],
+    fifa_points: pd.Series,
+    elo_ratings: dict[str, float],
+    scale: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Map FIFA ranking points + Elo ratings to (attack, defense) priors.
+
+    Both signals are z-scored across `teams` and averaged. A team missing one
+    signal falls back to the other; a team missing both gets z=0 (average).
     Given lambda_home = exp(mu + attack_home - defense_away + ...), a HIGH
     defense_i value reduces opponents' expected goals, i.e. high defense_i =
-    a strong defense. Good teams (high FIFA points / z-score) should get
-    both a high attack prior and a high defense prior.
+    a strong defense. Good teams (high combined z-score) should get both a
+    high attack prior and a high defense prior.
     """
     mapped_names = [FIFA_NAME_MAP.get(t, t) for t in teams]
-    points = np.array([fifa_points.get(name, np.nan) for name in mapped_names], dtype=float)
-    valid = ~np.isnan(points)
-    mean_p, std_p = points[valid].mean(), points[valid].std()
-    if std_p == 0:
-        z = np.zeros_like(points)
-    else:
-        z = np.where(valid, (points - mean_p) / std_p, 0.0)
-    return scale * z, scale * z
+    fifa_pts = np.array([fifa_points.get(name, np.nan) for name in mapped_names], dtype=float)
+    elo_pts = np.array([elo_ratings.get(t, np.nan) for t in teams], dtype=float)
+
+    fifa_z = _zscore(fifa_pts)
+    elo_z = _zscore(elo_pts)
+
+    stacked = np.stack([fifa_z, elo_z])
+    valid = ~np.isnan(stacked)
+    counts = np.clip(valid.sum(axis=0), 1, None)
+    combined = np.where(valid, stacked, 0.0).sum(axis=0) / counts
+
+    return scale * combined, scale * combined
+
+
+def _filter_minnow_matches(matches: pd.DataFrame, fifa_points: pd.Series, threshold: float) -> pd.DataFrame:
+    """Drop matches where the weaker side's FIFA points are below `threshold`.
+
+    Missing FIFA points are treated as below threshold, so matches involving
+    teams we have no ranking data for are also excluded.
+    """
+    def team_points(team: str) -> float:
+        return fifa_points.get(FIFA_NAME_MAP.get(team, team), np.nan)
+
+    home_points = matches["home_team"].map(team_points).fillna(-np.inf)
+    away_points = matches["away_team"].map(team_points).fillna(-np.inf)
+    weaker_points = np.minimum(home_points, away_points)
+    return matches[weaker_points >= threshold]
 
 
 def fit_dixon_coles(
     matches: pd.DataFrame,
     fifa_points: pd.Series,
+    elo_ratings: dict[str, float],
     config: dict,
     as_of: pd.Timestamp,
 ) -> DixonColesModel:
+    model_cfg = config["model"]
+    weights_cfg = config["tournament_weights"]
+
+    matches = _filter_minnow_matches(matches, fifa_points, model_cfg["min_fifa_points_threshold"])
+
     teams = sorted(set(matches["home_team"]) | set(matches["away_team"]))
     team_idx = {t: i for i, t in enumerate(teams)}
     n = len(teams)
@@ -196,15 +246,17 @@ def fit_dixon_coles(
     away_goals = matches["away_score"].values.astype(float)
     host_adv = (~matches["neutral"].astype(bool)).values.astype(float)
 
-    weights = time_weights(matches["date"], as_of, config["decay_half_life_days"])
+    weights = time_weights(matches["date"], as_of, model_cfg["decay_half_life_days"])
+    importance = matches["tournament"].apply(lambda t: tournament_weight(t, weights_cfg)).values
+    weights = weights * importance
 
-    prior_attack, prior_defense = _fifa_priors(teams, fifa_points, config["fifa_prior_scale"])
-    prior_weight = config["fifa_prior_weight"]
+    prior_attack, prior_defense = _strength_priors(teams, fifa_points, elo_ratings, model_cfg["strength_prior_scale"])
+    prior_weight = model_cfg["strength_prior_weight"]
 
     avg_goals = (home_goals.mean() + away_goals.mean()) / 2
     mu0 = float(np.log(avg_goals))
     x0 = np.concatenate([
-        [mu0, config["rho_init"], 0.1],
+        [mu0, model_cfg["rho_init"], 0.1],
         prior_attack.copy(),
         prior_defense.copy(),
     ])
