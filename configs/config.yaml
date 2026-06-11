@@ -14,13 +14,13 @@ model:
   # but this caps compute and avoids long-defunct national teams).
   lookback_years: 12
 
-  # FIFA-ranking prior: pulls each team's attack/defense toward a rating implied
-  # by its latest FIFA ranking points (z-score scaled by this constant).
-  fifa_prior_scale: 0.35
+  # Strength prior (FIFA ranking + Elo, blended): pulls each team's attack/defense
+  # toward a rating implied by its global standing (z-score scaled by this constant).
+  strength_prior_scale: 0.35
 
-  # L2 regularization strength toward the FIFA prior. Higher = trust FIFA ranking
+  # L2 regularization strength toward the strength prior. Higher = trust the prior
   # more, data-driven fit less. Mostly matters for teams with little history.
-  fifa_prior_weight: 5.0
+  strength_prior_weight: 5.0
 
   # Dixon-Coles low-score correlation parameter is fit jointly; this is just
   # the optimizer starting point.
@@ -31,6 +31,40 @@ model:
     - "Mexico"
     - "Canada"
     - "United States"
+
+  # Exclude matches where the weaker team's FIFA ranking points are below this
+  # threshold. Removes "blowout vs minnow" results (e.g. qualifier rout of a
+  # part-time federation) that distort attack/defense ratings for World
+  # Cup-level matchups. All 48 World Cup 2026 teams are above ~1247 points.
+  min_fifa_points_threshold: 1100
+
+# Tournament-importance weighting: multiplies the time-decay weight in the
+# Dixon-Coles fit, and scales the Elo K-factor, so that World Cup results
+# matter most and friendlies matter least.
+tournament_weights:
+  world_cup: 2.5
+  continental: 1.5
+  qualifier: 1.0
+  friendly: 0.3
+  other: 0.5
+  world_cup_names:
+    - "FIFA World Cup"
+  continental_names:
+    - "UEFA Euro"
+    - "Copa América"
+    - "Africa Cup of Nations"
+    - "AFC Asian Cup"
+    - "Gold Cup"
+    - "CONCACAF Gold Cup"
+    - "OFC Nations Cup"
+  qualifier_keywords:
+    - "qualification"
+    - "Nations League"
+
+elo:
+  initial_rating: 1500.0
+  base_k_factor: 24.0
+  home_advantage: 60.0
 
 tournament:
   groups_file: "data/fixtures/worldcup_2026_groups.csv"
