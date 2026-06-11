@@ -80,6 +80,10 @@ python simulate_tournament.py --simulations 2000
 
 # Golden Boot contenders (writes outputs/worldcup_2026_top_scorers.csv)
 python predict_top_scorers.py --top 25
+
+# Or run the whole daily pipeline (fetch -> retrain -> all predictions) in one go:
+python update_all.py
+python update_all.py --skip-fetch --simulations 5000 --seed 42
 ```
 
 Note: team names follow the source dataset's conventions, e.g. `Czech Republic` (not
