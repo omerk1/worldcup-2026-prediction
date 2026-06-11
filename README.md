@@ -31,6 +31,11 @@ little recent international history.
    history, with a goal-difference multiplier and tournament-importance-scaled K-factor). This
    anchors the "tier" of teams with sparse data (e.g. first-time qualifiers like Curaçao or
    Cape Verde) while letting data-rich teams (Brazil, France, ...) be driven by actual results.
+   `data/raw/fifa_ranking.csv` (Sept 2024 snapshot) is stale; `configs/fifa_ranking_current.csv`
+   is a manually-curated current rank-position snapshot (from ESPN, June 2026) for the teams
+   it matters most for. `latest_fifa_points` re-maps those teams' points onto the Sept 2024
+   points distribution at their current rank, refreshing tiering without needing fresh point
+   totals for every team. Update that CSV (or remove it) if a better source shows up.
 7. **Host advantage** — only applied to Mexico/Canada/USA matches played in their own country
    (per `neutral` flag in the source data); all other 2026 matches are treated as neutral.
 8. **Live updates** — as real 2026 World Cup results come in, record them with
@@ -49,6 +54,11 @@ little recent international history.
     (attack rating x expected number of matches, the latter from the tournament simulation)
     to rank Golden Boot contenders. This is a "recent form" proxy, not squad-aware - it
     doesn't account for injuries, retirements, or final squad selection.
+11. **Prediction history** — every run of `predict_fixtures.py`, `simulate_tournament.py`, and
+    `predict_top_scorers.py` stamps its output with a `generated_at` date and appends a snapshot
+    to `outputs/history/*.csv` (replacing same-day reruns). This builds up a record of how
+    predictions evolved over the tournament, which can later be compared against actual results
+    to see how the model did.
 
 ## Quick Start
 

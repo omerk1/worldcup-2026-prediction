@@ -6,6 +6,7 @@ import pandas as pd
 from src.data_processing.data_loader import (
     get_played_matches,
     latest_fifa_points,
+    load_current_rankings,
     load_fifa_ranking,
     load_live_results,
     load_results,
@@ -26,7 +27,8 @@ def main():
 
     results = load_results()
     fifa = load_fifa_ranking()
-    fifa_points = latest_fifa_points(fifa)
+    current_rankings = load_current_rankings()
+    fifa_points = latest_fifa_points(fifa, current_rankings)
     live_results = load_live_results()
 
     matches = get_played_matches(results, as_of, config["model"]["lookback_years"], live_results)

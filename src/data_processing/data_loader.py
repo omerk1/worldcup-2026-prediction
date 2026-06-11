@@ -33,11 +33,44 @@ def load_fifa_ranking(raw_dir: Path | None = None) -> pd.DataFrame:
     return df
 
 
-def latest_fifa_points(fifa_df: pd.DataFrame) -> pd.Series:
-    """Return a Series mapping team name -> latest known FIFA ranking points."""
+def latest_fifa_points(fifa_df: pd.DataFrame, current_rankings: pd.DataFrame | None = None) -> pd.Series:
+    """Return a Series mapping team name -> FIFA ranking points.
+
+    `fifa_ranking.csv` is a periodically re-fetched snapshot that can lag the
+    real FIFA rankings by a long time. If `current_rankings` (columns: team,
+    rank) is given, those teams' points are re-estimated from their current
+    rank position, mapped onto the points distribution of the latest snapshot
+    (i.e. "team X is now ranked Nth, so give it the points the Nth-ranked team
+    had in our snapshot"). This refreshes relative tiering for teams whose
+    rank has moved a lot since the snapshot, without needing fresh point
+    totals for the whole world.
+    """
     latest_date = fifa_df["date"].max()
     latest = fifa_df[fifa_df["date"] == latest_date]
-    return latest.set_index("team")["total_points"]
+    points = latest.set_index("team")["total_points"].copy()
+
+    if current_rankings is not None and len(current_rankings):
+        ranked = points.dropna().sort_values(ascending=False).reset_index(drop=True)
+        for _, row in current_rankings.iterrows():
+            rank = int(row["rank"])
+            if rank <= len(ranked):
+                points.loc[row["team"]] = ranked.iloc[rank - 1]
+
+    return points
+
+
+def load_current_rankings(config_dir: Path | None = None) -> pd.DataFrame:
+    """Manually-curated current FIFA rank positions (team, rank).
+
+    Used by `latest_fifa_points` to refresh the points-based prior for teams
+    where `fifa_ranking.csv` is stale. See configs/fifa_ranking_current.csv
+    for the source and date of this snapshot.
+    """
+    config_dir = config_dir or (PROJECT_ROOT / "configs")
+    path = config_dir / "fifa_ranking_current.csv"
+    if not path.exists():
+        return pd.DataFrame(columns=["team", "rank"])
+    return pd.read_csv(path)
 
 
 def tournament_weight(tournament: str, weights: dict) -> float:

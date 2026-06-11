@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from src.data_processing.data_loader import get_played_matches
+from src.data_processing.data_loader import get_played_matches, latest_fifa_points
 
 
 def _results_df() -> pd.DataFrame:
@@ -64,3 +64,36 @@ def test_works_without_live_results_df():
     # Unplayed fixture stays unplayed; old match still excluded by lookback.
     assert len(played) == 2
     assert set(played["home_team"]) == {"Brazil", "France"}
+
+
+def _fifa_df() -> pd.DataFrame:
+    return pd.DataFrame([
+        {"date": "2024-09-19", "team": "Strong", "total_points": 1900.0},
+        {"date": "2024-09-19", "team": "Mid", "total_points": 1500.0},
+        {"date": "2024-09-19", "team": "Weak", "total_points": 1000.0},
+        {"date": "2024-09-19", "team": "Riser", "total_points": 1100.0},
+    ]).assign(date=lambda d: pd.to_datetime(d["date"]))
+
+
+def test_latest_fifa_points_without_override():
+    points = latest_fifa_points(_fifa_df())
+    assert points["Riser"] == 1100.0
+
+
+def test_latest_fifa_points_applies_current_rank_override():
+    # "Riser" has since climbed to the #1 rank - it should now get the points
+    # that the #1-ranked team ("Strong") had in the snapshot.
+    current_rankings = pd.DataFrame([{"team": "Riser", "rank": 1}])
+    points = latest_fifa_points(_fifa_df(), current_rankings)
+
+    assert points["Riser"] == 1900.0
+    # Untouched teams keep their snapshot points.
+    assert points["Strong"] == 1900.0
+    assert points["Mid"] == 1500.0
+
+
+def test_latest_fifa_points_override_for_team_missing_from_snapshot():
+    current_rankings = pd.DataFrame([{"team": "Newcomer", "rank": 2}])
+    points = latest_fifa_points(_fifa_df(), current_rankings)
+
+    assert points["Newcomer"] == 1500.0
