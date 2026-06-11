@@ -37,6 +37,12 @@ little recent international history.
    `record_result.py`. They're merged into the training data (`get_played_matches`) so
    re-running `train_ratings.py` produces updated ratings/predictions for the rest of the
    tournament.
+9. **Tournament winner simulation** — `simulate_tournament.py` runs a Monte Carlo simulation:
+   sample group-stage scores from the Dixon-Coles model, compute standings + the 8 best
+   third-placed teams, build a knockout bracket, and play it out (draws decided by a 50/50
+   coin flip) to estimate each team's probability of reaching each stage and winning it all.
+   The bracket is a simplified 32-team seeding (not FIFA's official third-place lookup table)
+   and knockout matches are treated as neutral venue.
 
 ## Quick Start
 
@@ -62,6 +68,9 @@ python predict_fixtures.py
 python record_result.py --date 2026-06-11 --home Mexico --away "South Africa" \
     --home-score 2 --away-score 0
 python train_ratings.py
+
+# Monte Carlo tournament winner odds (writes outputs/worldcup_2026_simulation.csv)
+python simulate_tournament.py --simulations 2000
 ```
 
 Note: team names follow the source dataset's conventions, e.g. `Czech Republic` (not
@@ -74,6 +83,7 @@ worldcup-2026-prediction/
 ├── src/
 │   ├── data_processing/   # fetch_data.py, data_loader.py
 │   ├── models/             # dixon_coles.py - core model, elo.py - Elo ratings
+│   ├── simulation/          # tournament.py - Monte Carlo group + knockout simulation
 │   └── utils/              # config loading
 ├── configs/config.yaml     # data URLs + model hyperparameters
 ├── data/
@@ -83,6 +93,7 @@ worldcup-2026-prediction/
 ├── predict_match.py         # predict a single match
 ├── predict_fixtures.py      # predict all 72 group-stage matches
 ├── record_result.py         # record an actual 2026 WC result for future training
+├── simulate_tournament.py   # Monte Carlo tournament winner odds
 ├── outputs/                  # prediction CSVs
 └── tests/
 ```
@@ -104,5 +115,5 @@ All tunables are in `configs/config.yaml`:
 ## Status / Next Steps
 
 - [x] Per-match score prediction (group stage)
-- [ ] Knockout-stage / tiebreaker simulation (Monte Carlo tournament winner odds)
+- [x] Knockout-stage / tiebreaker simulation (Monte Carlo tournament winner odds)
 - [ ] Top scorer prediction (player-level goal rates from `goalscorers.csv`)
