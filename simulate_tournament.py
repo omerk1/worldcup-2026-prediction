@@ -16,6 +16,7 @@ from src.data_processing.data_loader import get_worldcup_2026_fixtures, load_res
 from src.models.dixon_coles import DixonColesModel
 from src.simulation.tournament import run_simulations
 from src.utils.config_loader import PROJECT_ROOT, load_config
+from src.utils.history import append_history
 
 
 def main():
@@ -36,15 +37,22 @@ def main():
     print(f"Running {args.simulations} simulated tournaments...")
     df, groups = run_simulations(model, fixtures, host_nations, args.simulations, seed=args.seed)
 
+    generated_at = pd.Timestamp.today().normalize()
+    df.insert(0, "generated_at", generated_at.date().isoformat())
+
     out_path = PROJECT_ROOT / args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_path, index=False)
     print(f"Wrote results for {len(df)} teams to {out_path}\n")
 
     pct = df.copy()
-    for col in df.columns[1:]:
+    for col in df.columns[2:]:
         pct[col] = (pct[col] * 100).round(1)
     print(pct.head(20).to_string(index=False))
+
+    history_path = PROJECT_ROOT / "outputs" / "history" / "simulation_history.csv"
+    append_history(df, history_path, key_cols=["team"], generated_at=generated_at)
+    print(f"\nAppended snapshot to {history_path}")
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ from src.models.dixon_coles import DixonColesModel
 from src.models.top_scorer import predict_top_scorers
 from src.simulation.tournament import derive_groups
 from src.utils.config_loader import PROJECT_ROOT, load_config
+from src.utils.history import append_history
 
 
 def main():
@@ -46,6 +47,7 @@ def main():
     half_life = config["model"]["decay_half_life_days"]
 
     df = predict_top_scorers(goalscorers, model, simulation, teams, as_of, half_life)
+    df.insert(0, "generated_at", as_of.date().isoformat())
 
     out_path = PROJECT_ROOT / args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,6 +59,10 @@ def main():
     pretty["expected_matches"] = pretty["expected_matches"].round(2)
     pretty["expected_goals"] = pretty["expected_goals"].round(2)
     print(pretty.to_string(index=False))
+
+    history_path = PROJECT_ROOT / "outputs" / "history" / "top_scorers_history.csv"
+    append_history(df, history_path, key_cols=["player", "team"], generated_at=as_of)
+    print(f"\nAppended snapshot to {history_path}")
 
 
 if __name__ == "__main__":
