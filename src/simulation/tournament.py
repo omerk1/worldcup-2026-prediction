@@ -2,13 +2,16 @@
 
 Groups are derived from the 72 group-stage fixtures (each group is a set of 4
 teams that all play each other). The knockout bracket is a simplified 32-team
-single-elimination seeding: group winners and runners-up are seeded by group
-order, the 8 best third-placed teams (ranked by points/goal difference/goals
-scored) fill the remaining slots, and a 1-vs-32-style pairing is used with a
-swap to avoid two teams from the same group meeting in the round of 32. This
-is *not* FIFA's official bracket-assignment table (which depends on exactly
-which groups' third-placed teams qualify), just a reasonable approximation
-for simulation purposes.
+single-elimination seeding: the 32 qualifiers (12 group winners, 12 runners-up,
+8 best third-placed teams) are ranked by overall model rating (attack +
+defense) and placed into a standard tournament seeding order, so the
+strongest teams are spread across different bracket halves/quarters (seed 1
+and seed 2 can only meet in the final, etc.) rather than colliding early just
+because their groups happen to be alphabetically adjacent. A swap step avoids
+two teams from the same group meeting in the round of 32. This is *not*
+FIFA's official bracket-assignment table (which depends on exactly which
+groups' third-placed teams qualify), just a reasonable approximation for
+simulation purposes.
 
 Knockout matches are treated as neutral-venue (no host advantage), and drawn
 matches are decided by a 50/50 coin flip (proxy for extra time + penalties).
@@ -113,17 +116,34 @@ def _rank_group(standings: dict[str, dict[str, int]], rng: np.random.Generator) 
     return teams
 
 
+def _seed_order(n: int) -> list[int]:
+    """Standard single-elimination seeding order (1-indexed) for n slots.
+
+    Ensures seed 1 and seed 2 can only meet in the final, seeds 1-4 can only
+    meet from the semifinals onward, etc.
+    """
+    order = [1]
+    size = 1
+    while size < n:
+        order = [s for seed in order for s in (seed, 2 * size + 1 - seed)]
+        size *= 2
+    return order
+
+
 def _build_r32_bracket(
     group_rankings: dict[str, list[str]],
     team_to_group: dict[str, str],
     qualifying_thirds: list[str],
+    team_strength: dict[str, float],
 ) -> list[tuple[str, str]]:
-    group_labels = sorted(group_rankings)
-    winners = [group_rankings[g][0] for g in group_labels]
-    runners_up = [group_rankings[g][1] for g in group_labels]
+    winners = [ranked[0] for ranked in group_rankings.values()]
+    runners_up = [ranked[1] for ranked in group_rankings.values()]
+    qualifiers = winners + runners_up + qualifying_thirds  # 12 + 12 + 8 = 32
 
-    seeds = winners + runners_up + qualifying_thirds  # 12 + 12 + 8 = 32
-    pairs = [(seeds[i], seeds[31 - i]) for i in range(16)]
+    # Rank the 32 qualifiers by overall model rating: seed 1 = strongest.
+    ranked_by_strength = sorted(qualifiers, key=lambda t: team_strength.get(t, 0.0), reverse=True)
+    slots = [ranked_by_strength[s - 1] for s in _seed_order(32)]
+    pairs = [(slots[2 * k], slots[2 * k + 1]) for k in range(16)]
 
     def same_group(a: str, b: str) -> bool:
         return team_to_group[a] == team_to_group[b]
@@ -175,6 +195,7 @@ def simulate_once(
     fixtures: pd.DataFrame,
     groups: dict[str, list[str]],
     host_nations: set[str],
+    team_strength: dict[str, float],
     cache: ScoreMatrixCache,
     rng: np.random.Generator,
 ) -> dict[str, str]:
@@ -200,7 +221,7 @@ def simulate_once(
     )
     qualifying_thirds = [team for _, team in thirds[:8]]
 
-    bracket = _build_r32_bracket(rankings, team_to_group, qualifying_thirds)
+    bracket = _build_r32_bracket(rankings, team_to_group, qualifying_thirds, team_strength)
     return _simulate_knockout(bracket, cache, rng)
 
 
@@ -216,10 +237,11 @@ def run_simulations(
     cache = ScoreMatrixCache(model)
 
     all_teams = sorted(set(fixtures["home_team"]) | set(fixtures["away_team"]))
+    team_strength = {t: sum(model.ratings(t)) for t in all_teams}
     counts = {t: {label: 0 for label in STAGE_LABELS} for t in all_teams}
 
     for _ in range(n_simulations):
-        reached = simulate_once(fixtures, groups, host_nations, cache, rng)
+        reached = simulate_once(fixtures, groups, host_nations, team_strength, cache, rng)
         for team, stage in reached.items():
             stage_idx = STAGE_LABELS.index(stage)
             for label in STAGE_LABELS[: stage_idx + 1]:
