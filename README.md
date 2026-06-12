@@ -54,11 +54,17 @@ little recent international history.
     (attack rating x expected number of matches, the latter from the tournament simulation)
     to rank Golden Boot contenders. This is a "recent form" proxy, not squad-aware - it
     doesn't account for injuries, retirements, or final squad selection.
-11. **Prediction history** — every run of `predict_fixtures.py`, `simulate_tournament.py`, and
-    `predict_top_scorers.py` stamps its output with a `generated_at` date and appends a snapshot
-    to `outputs/history/*.csv` (replacing same-day reruns). This builds up a record of how
-    predictions evolved over the tournament, which can later be compared against actual results
-    to see how the model did.
+11. **Prediction history** — every run of `predict_fixtures.py`, `predict_best_guess.py`,
+    `simulate_tournament.py`, and `predict_top_scorers.py` stamps its output with a
+    `generated_at` date and appends a snapshot to `outputs/history/*.csv` (replacing same-day
+    reruns). This builds up a record of how predictions evolved over the tournament, which can
+    later be compared against actual results to see how the model did.
+12. **Best-guess pick** — `predict_best_guess.py` (writes `outputs/worldcup_2026_best_guess.csv`)
+    picks, for each fixture, the scoreline that maximizes expected points in a prediction game
+    scored "3 points for an exact score, 1 point for the direction (home win/draw/away win)
+    only". This is `argmax(2*P(score) + P(direction))` over each direction's best scoreline,
+    which can differ from `predicted_score` (the single most likely scoreline overall) when a
+    direction's probability is spread across many scorelines.
 
 ## Quick Start
 
@@ -79,6 +85,10 @@ python predict_match.py --home "South Korea" --away "Czech Republic"
 
 # Predict all 72 group-stage fixtures (writes outputs/worldcup_2026_predictions.csv)
 python predict_fixtures.py
+
+# Best-guess picks for a "3 for exact score, 1 for direction" prediction game
+# (writes outputs/worldcup_2026_best_guess.csv)
+python predict_best_guess.py
 
 # Record an actual result as the tournament progresses, then re-fit
 python record_result.py --date 2026-06-11 --home Mexico --away "South Africa" \
@@ -115,6 +125,7 @@ worldcup-2026-prediction/
 ├── train_ratings.py         # fit ratings from history
 ├── predict_match.py         # predict a single match
 ├── predict_fixtures.py      # predict all 72 group-stage matches
+├── predict_best_guess.py     # best-guess picks for "3 exact / 1 direction" prediction games
 ├── record_result.py         # record an actual 2026 WC result for future training
 ├── simulate_tournament.py   # Monte Carlo tournament winner odds
 ├── outputs/                  # prediction CSVs

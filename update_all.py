@@ -1,8 +1,8 @@
 """Run the full daily update pipeline in one go.
 
 Steps: fetch latest data -> refit team ratings -> regenerate fixture
-predictions -> regenerate tournament simulation -> regenerate top scorer
-projections.
+predictions -> regenerate best-guess picks -> regenerate tournament
+simulation -> regenerate top scorer projections.
 
 Example:
     python update_all.py
@@ -33,6 +33,7 @@ def main():
 
     run("train_ratings.py")
     run("predict_fixtures.py")
+    run("predict_best_guess.py")
 
     sim_args = ["simulate_tournament.py", "--simulations", str(args.simulations)]
     if args.seed is not None:
