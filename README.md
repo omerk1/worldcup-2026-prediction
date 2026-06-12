@@ -61,10 +61,14 @@ little recent international history.
     later be compared against actual results to see how the model did.
 12. **Best-guess pick** — `predict_best_guess.py` (writes `outputs/worldcup_2026_best_guess.csv`)
     picks, for each fixture, the scoreline that maximizes expected points in a prediction game
-    scored "3 points for an exact score, 1 point for the direction (home win/draw/away win)
-    only". This is `argmax(2*P(score) + P(direction))` over each direction's best scoreline,
-    which can differ from `predicted_score` (the single most likely scoreline overall) when a
-    direction's probability is spread across many scorelines.
+    scored "`exact` points for an exact score, `direction` points for the direction (home
+    win/draw/away win) only" (not stacked), per the per-stage point values in
+    `configs/config.yaml`'s `scoring` table. This is `argmax((exact-direction)*P(score) +
+    direction*P(direction))` over each direction's best scoreline, which can differ from
+    `predicted_score` (the single most likely scoreline overall) when a direction's
+    probability is spread across many scorelines. Currently only group-stage fixtures are
+    predictable (knockout matchups depend on group-stage results), so `group_stage`'s 3/1
+    values are used; the other stages' values are ready for when knockout fixtures exist.
 
 ## Quick Start
 
@@ -145,6 +149,8 @@ All tunables are in `configs/config.yaml`:
 - `tournament_weights` — importance multipliers by competition type (World Cup, continental,
   qualifier, friendly, other), applied to both the Dixon-Coles fit and the Elo K-factor
 - `elo` — initial rating, base K-factor, and home-advantage offset for the Elo replay
+- `scoring` — points-per-stage for `predict_best_guess.py`'s prediction-game formula (`exact`
+  score points vs `direction`-only points, not stacked)
 
 ## Status / Next Steps
 

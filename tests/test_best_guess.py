@@ -31,3 +31,18 @@ def test_best_guess_picks_highest_probability_cell_when_direction_dominates():
     assert guess["best_guess_score"] == "1-1"
     assert guess["direction"] == "draw"
     assert round(guess["expected_points"], 2) == 1.90
+
+
+def test_best_guess_uses_custom_point_values():
+    # Final: 8 for direction-only, 15 for exact.
+    matrix = np.array([
+        [0.40, 0.05],
+        [0.05, 0.50],
+    ])
+
+    guess = best_guess(matrix, direction_points=8, exact_points=15)
+
+    # draw: (15-8)*0.50 + 8*0.90 = 3.5 + 7.2 = 10.7
+    assert guess["best_guess_score"] == "1-1"
+    assert guess["direction"] == "draw"
+    assert round(guess["expected_points"], 2) == 10.70

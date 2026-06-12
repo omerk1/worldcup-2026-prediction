@@ -36,13 +36,14 @@ def main():
         fixtures = fixtures[fixtures["date"] >= args.from_date]
 
     host_nations = set(config["model"]["host_nations"])
+    scoring = config["scoring"]["group_stage"]
 
     rows = []
     for _, row in fixtures.iterrows():
         host = (not row["neutral"]) and (row["home_team"] in host_nations)
         matrix = model.score_matrix(row["home_team"], row["away_team"], host=host)
         pred = model.predict(row["home_team"], row["away_team"], host=host)
-        guess = best_guess(matrix)
+        guess = best_guess(matrix, direction_points=scoring["direction"], exact_points=scoring["exact"])
         rows.append({
             "date": row["date"].date(),
             "home_team": row["home_team"],

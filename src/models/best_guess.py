@@ -1,11 +1,11 @@
 """Pick the scoreline that maximizes expected points in a prediction game
-scored "3 points for the exact score, 1 point for the correct direction
-(home win / draw / away win) only".
+scored "`exact` points for the exact score, `direction` points for the
+correct direction (home win / draw / away win) only" (not stacked).
 
 Under that rule, the expected points of guessing scoreline (h, a) is:
 
-    E(h, a) = 3 * P(exact score = h-a) + 1 * P(direction correct, not exact)
-            = 2 * P(score = h-a) + P(direction of h-a)
+    E(h, a) = exact * P(score = h-a) + direction * P(direction correct, not exact)
+            = (exact - direction) * P(score = h-a) + direction * P(direction of h-a)
 
 which is not always maximized by the single most likely cell in the score
 matrix - a direction whose probability mass is concentrated in one cell can
@@ -23,7 +23,7 @@ _DIRECTIONS = {
 }
 
 
-def best_guess(matrix: np.ndarray) -> dict:
+def best_guess(matrix: np.ndarray, direction_points: float = 1, exact_points: float = 3) -> dict:
     max_goals = matrix.shape[0] - 1
 
     candidates = []
@@ -40,7 +40,7 @@ def best_guess(matrix: np.ndarray) -> dict:
             for a in range(max_goals + 1)
             if in_region(h, a)
         )
-        expected_points = 2 * score_prob + direction_prob
+        expected_points = (exact_points - direction_points) * score_prob + direction_points * direction_prob
         candidates.append((expected_points, direction, h, a, float(score_prob), direction_prob))
 
     expected_points, direction, h, a, score_prob, direction_prob = max(candidates, key=lambda c: c[0])

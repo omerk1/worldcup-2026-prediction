@@ -69,3 +69,29 @@ elo:
 tournament:
   groups_file: "data/fixtures/worldcup_2026_groups.csv"
   fixtures_file: "data/fixtures/worldcup_2026_fixtures.csv"
+
+# Points awarded by predict_best_guess.py's "3 for exact score, X for
+# direction only" prediction game, by tournament stage. `exact` is the total
+# points for an exact score (not stacked with `direction`).
+scoring:
+  group_stage:
+    direction: 1
+    exact: 3
+  round_of_32:
+    direction: 2
+    exact: 5
+  round_of_16:
+    direction: 2
+    exact: 5
+  quarterfinal:
+    direction: 4
+    exact: 8
+  semifinal:
+    direction: 5
+    exact: 10
+  third_place:
+    direction: 5
+    exact: 10
+  final:
+    direction: 8
+    exact: 15
