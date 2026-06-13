@@ -1,0 +1,217 @@
+generated_at,date,home_team,away_team,best_guess_score,direction,expected_points,most_likely_score
+2026-06-12,2026-06-11,Mexico,South Africa,1-0,home_win,0.973,1-0
+2026-06-12,2026-06-11,South Korea,Czech Republic,1-0,home_win,0.676,1-1
+2026-06-12,2026-06-12,Canada,Bosnia and Herzegovina,2-0,home_win,0.984,2-0
+2026-06-12,2026-06-12,United States,Paraguay,1-0,home_win,0.732,1-1
+2026-06-12,2026-06-13,Qatar,Switzerland,0-2,away_win,0.909,0-2
+2026-06-12,2026-06-13,Brazil,Morocco,0-0,draw,0.741,0-0
+2026-06-12,2026-06-13,Haiti,Scotland,0-1,away_win,0.78,1-1
+2026-06-12,2026-06-13,Australia,Turkey,1-0,home_win,0.627,1-1
+2026-06-12,2026-06-14,Sweden,Tunisia,1-1,draw,0.6,1-1
+2026-06-12,2026-06-14,Netherlands,Japan,1-1,draw,0.566,1-1
+2026-06-12,2026-06-14,Germany,Curaçao,2-0,home_win,1.082,2-0
+2026-06-12,2026-06-14,Ivory Coast,Ecuador,0-1,away_win,0.809,0-0
+2026-06-12,2026-06-15,Belgium,Egypt,1-0,home_win,0.785,1-0
+2026-06-12,2026-06-15,Iran,New Zealand,1-0,home_win,0.921,1-0
+2026-06-12,2026-06-15,Spain,Cape Verde,2-0,home_win,1.124,2-0
+2026-06-12,2026-06-15,Saudi Arabia,Uruguay,0-1,away_win,0.98,0-1
+2026-06-12,2026-06-16,Austria,Jordan,1-0,home_win,0.66,1-1
+2026-06-12,2026-06-16,Argentina,Algeria,1-0,home_win,0.951,1-0
+2026-06-12,2026-06-16,France,Senegal,1-0,home_win,0.794,1-0
+2026-06-12,2026-06-16,Iraq,Norway,0-1,away_win,0.79,0-1
+2026-06-12,2026-06-17,Portugal,DR Congo,1-0,home_win,0.955,1-0
+2026-06-12,2026-06-17,Uzbekistan,Colombia,0-1,away_win,0.865,0-1
+2026-06-12,2026-06-17,England,Croatia,1-0,home_win,0.792,1-0
+2026-06-12,2026-06-17,Ghana,Panama,0-1,away_win,0.678,1-1
+2026-06-12,2026-06-18,Czech Republic,South Africa,1-0,home_win,0.609,1-1
+2026-06-12,2026-06-18,Mexico,South Korea,1-0,home_win,0.806,1-0
+2026-06-12,2026-06-18,Switzerland,Bosnia and Herzegovina,2-0,home_win,0.959,2-0
+2026-06-12,2026-06-18,Canada,Qatar,2-0,home_win,0.933,2-0
+2026-06-12,2026-06-19,Turkey,Paraguay,1-0,home_win,0.62,1-1
+2026-06-12,2026-06-19,Scotland,Morocco,0-1,away_win,0.915,0-1
+2026-06-12,2026-06-19,Brazil,Haiti,2-0,home_win,1.115,2-0
+2026-06-12,2026-06-19,United States,Australia,1-0,home_win,0.598,1-1
+2026-06-12,2026-06-20,Netherlands,Sweden,2-0,home_win,0.846,2-0
+2026-06-12,2026-06-20,Tunisia,Japan,0-1,away_win,0.867,0-1
+2026-06-12,2026-06-20,Germany,Ivory Coast,1-0,home_win,0.839,1-0
+2026-06-12,2026-06-20,Ecuador,Curaçao,1-0,home_win,1.043,1-0
+2026-06-12,2026-06-21,Belgium,Iran,1-0,home_win,0.656,1-1
+2026-06-12,2026-06-21,New Zealand,Egypt,0-1,away_win,0.855,0-1
+2026-06-12,2026-06-21,Spain,Saudi Arabia,2-0,home_win,1.118,2-0
+2026-06-12,2026-06-21,Uruguay,Cape Verde,1-0,home_win,0.974,1-0
+2026-06-12,2026-06-22,France,Iraq,1-0,home_win,0.994,1-0
+2026-06-12,2026-06-22,Norway,Senegal,1-1,draw,0.599,1-1
+2026-06-12,2026-06-22,Argentina,Austria,1-0,home_win,0.986,1-0
+2026-06-12,2026-06-22,Jordan,Algeria,0-1,away_win,0.705,1-1
+2026-06-12,2026-06-23,Portugal,Uzbekistan,1-0,home_win,0.876,1-0
+2026-06-12,2026-06-23,Colombia,DR Congo,1-0,home_win,0.946,1-0
+2026-06-12,2026-06-23,England,Ghana,2-0,home_win,1.097,2-0
+2026-06-12,2026-06-23,Panama,Croatia,0-1,away_win,0.772,1-1
+2026-06-12,2026-06-24,Morocco,Haiti,2-0,home_win,1.07,2-0
+2026-06-12,2026-06-24,Bosnia and Herzegovina,Qatar,0-1,away_win,0.607,1-1
+2026-06-12,2026-06-24,Scotland,Brazil,0-1,away_win,0.932,0-1
+2026-06-12,2026-06-24,South Africa,South Korea,0-1,away_win,0.741,1-1
+2026-06-12,2026-06-24,Mexico,Czech Republic,1-0,home_win,0.918,1-0
+2026-06-12,2026-06-24,Canada,Switzerland,2-1,home_win,0.557,1-1
+2026-06-12,2026-06-25,United States,Turkey,2-1,home_win,0.645,1-1
+2026-06-12,2026-06-25,Paraguay,Australia,0-1,away_win,0.718,0-0
+2026-06-12,2026-06-25,Curaçao,Ivory Coast,0-1,away_win,0.868,0-1
+2026-06-12,2026-06-25,Ecuador,Germany,0-1,away_win,0.679,1-1
+2026-06-12,2026-06-25,Japan,Sweden,1-0,home_win,0.824,1-1
+2026-06-12,2026-06-25,Tunisia,Netherlands,0-1,away_win,0.871,0-1
+2026-06-12,2026-06-26,Senegal,Iraq,1-0,home_win,0.846,1-0
+2026-06-12,2026-06-26,Norway,France,0-1,away_win,0.784,1-1
+2026-06-12,2026-06-26,Uruguay,Spain,0-1,away_win,0.821,0-1
+2026-06-12,2026-06-26,New Zealand,Belgium,0-1,away_win,0.98,0-1
+2026-06-12,2026-06-26,Egypt,Iran,0-1,away_win,0.699,0-0
+2026-06-12,2026-06-26,Cape Verde,Saudi Arabia,0-0,draw,0.658,0-0
+2026-06-12,2026-06-27,Panama,England,0-2,away_win,0.987,0-2
+2026-06-12,2026-06-27,Algeria,Austria,1-0,home_win,0.616,1-1
+2026-06-12,2026-06-27,Jordan,Argentina,0-2,away_win,1.061,0-2
+2026-06-12,2026-06-27,Colombia,Portugal,0-1,away_win,0.576,1-1
+2026-06-12,2026-06-27,DR Congo,Uzbekistan,0-0,draw,0.8,0-0
+2026-06-12,2026-06-27,Croatia,Ghana,1-0,home_win,0.91,1-0
+2026-06-12,2026-06-11,Mexico,South Africa,1-0,home_win,0.973,1-0
+2026-06-12,2026-06-11,South Korea,Czech Republic,1-0,home_win,0.676,1-1
+2026-06-12,2026-06-12,Canada,Bosnia and Herzegovina,2-0,home_win,0.984,2-0
+2026-06-12,2026-06-12,United States,Paraguay,1-0,home_win,0.732,1-1
+2026-06-12,2026-06-13,Qatar,Switzerland,0-2,away_win,0.909,0-2
+2026-06-12,2026-06-13,Brazil,Morocco,0-0,draw,0.741,0-0
+2026-06-12,2026-06-13,Haiti,Scotland,0-1,away_win,0.78,1-1
+2026-06-12,2026-06-13,Australia,Turkey,1-0,home_win,0.627,1-1
+2026-06-12,2026-06-14,Sweden,Tunisia,1-1,draw,0.6,1-1
+2026-06-12,2026-06-14,Netherlands,Japan,1-1,draw,0.566,1-1
+2026-06-12,2026-06-14,Germany,Curaçao,2-0,home_win,1.082,2-0
+2026-06-12,2026-06-14,Ivory Coast,Ecuador,0-1,away_win,0.809,0-0
+2026-06-12,2026-06-15,Belgium,Egypt,1-0,home_win,0.785,1-0
+2026-06-12,2026-06-15,Iran,New Zealand,1-0,home_win,0.921,1-0
+2026-06-12,2026-06-15,Spain,Cape Verde,2-0,home_win,1.124,2-0
+2026-06-12,2026-06-15,Saudi Arabia,Uruguay,0-1,away_win,0.98,0-1
+2026-06-12,2026-06-16,Austria,Jordan,1-0,home_win,0.66,1-1
+2026-06-12,2026-06-16,Argentina,Algeria,1-0,home_win,0.951,1-0
+2026-06-12,2026-06-16,France,Senegal,1-0,home_win,0.794,1-0
+2026-06-12,2026-06-16,Iraq,Norway,0-1,away_win,0.79,0-1
+2026-06-12,2026-06-17,Portugal,DR Congo,1-0,home_win,0.955,1-0
+2026-06-12,2026-06-17,Uzbekistan,Colombia,0-1,away_win,0.865,0-1
+2026-06-12,2026-06-17,England,Croatia,1-0,home_win,0.792,1-0
+2026-06-12,2026-06-17,Ghana,Panama,0-1,away_win,0.678,1-1
+2026-06-12,2026-06-18,Czech Republic,South Africa,1-0,home_win,0.609,1-1
+2026-06-12,2026-06-18,Mexico,South Korea,1-0,home_win,0.806,1-0
+2026-06-12,2026-06-18,Switzerland,Bosnia and Herzegovina,2-0,home_win,0.959,2-0
+2026-06-12,2026-06-18,Canada,Qatar,2-0,home_win,0.933,2-0
+2026-06-12,2026-06-19,Turkey,Paraguay,1-0,home_win,0.62,1-1
+2026-06-12,2026-06-19,Scotland,Morocco,0-1,away_win,0.915,0-1
+2026-06-12,2026-06-19,Brazil,Haiti,2-0,home_win,1.115,2-0
+2026-06-12,2026-06-19,United States,Australia,1-0,home_win,0.598,1-1
+2026-06-12,2026-06-20,Netherlands,Sweden,2-0,home_win,0.846,2-0
+2026-06-12,2026-06-20,Tunisia,Japan,0-1,away_win,0.867,0-1
+2026-06-12,2026-06-20,Germany,Ivory Coast,1-0,home_win,0.839,1-0
+2026-06-12,2026-06-20,Ecuador,Curaçao,1-0,home_win,1.043,1-0
+2026-06-12,2026-06-21,Belgium,Iran,1-0,home_win,0.656,1-1
+2026-06-12,2026-06-21,New Zealand,Egypt,0-1,away_win,0.855,0-1
+2026-06-12,2026-06-21,Spain,Saudi Arabia,2-0,home_win,1.118,2-0
+2026-06-12,2026-06-21,Uruguay,Cape Verde,1-0,home_win,0.974,1-0
+2026-06-12,2026-06-22,France,Iraq,1-0,home_win,0.994,1-0
+2026-06-12,2026-06-22,Norway,Senegal,1-1,draw,0.599,1-1
+2026-06-12,2026-06-22,Argentina,Austria,1-0,home_win,0.986,1-0
+2026-06-12,2026-06-22,Jordan,Algeria,0-1,away_win,0.705,1-1
+2026-06-12,2026-06-23,Portugal,Uzbekistan,1-0,home_win,0.876,1-0
+2026-06-12,2026-06-23,Colombia,DR Congo,1-0,home_win,0.946,1-0
+2026-06-12,2026-06-23,England,Ghana,2-0,home_win,1.097,2-0
+2026-06-12,2026-06-23,Panama,Croatia,0-1,away_win,0.772,1-1
+2026-06-12,2026-06-24,Morocco,Haiti,2-0,home_win,1.07,2-0
+2026-06-12,2026-06-24,Bosnia and Herzegovina,Qatar,0-1,away_win,0.607,1-1
+2026-06-12,2026-06-24,Scotland,Brazil,0-1,away_win,0.932,0-1
+2026-06-12,2026-06-24,South Africa,South Korea,0-1,away_win,0.741,1-1
+2026-06-12,2026-06-24,Mexico,Czech Republic,1-0,home_win,0.918,1-0
+2026-06-12,2026-06-24,Canada,Switzerland,2-1,home_win,0.557,1-1
+2026-06-12,2026-06-25,United States,Turkey,2-1,home_win,0.645,1-1
+2026-06-12,2026-06-25,Paraguay,Australia,0-1,away_win,0.718,0-0
+2026-06-12,2026-06-25,Curaçao,Ivory Coast,0-1,away_win,0.868,0-1
+2026-06-12,2026-06-25,Ecuador,Germany,0-1,away_win,0.679,1-1
+2026-06-12,2026-06-25,Japan,Sweden,1-0,home_win,0.824,1-1
+2026-06-12,2026-06-25,Tunisia,Netherlands,0-1,away_win,0.871,0-1
+2026-06-12,2026-06-26,Senegal,Iraq,1-0,home_win,0.846,1-0
+2026-06-12,2026-06-26,Norway,France,0-1,away_win,0.784,1-1
+2026-06-12,2026-06-26,Uruguay,Spain,0-1,away_win,0.821,0-1
+2026-06-12,2026-06-26,New Zealand,Belgium,0-1,away_win,0.98,0-1
+2026-06-12,2026-06-26,Egypt,Iran,0-1,away_win,0.699,0-0
+2026-06-12,2026-06-26,Cape Verde,Saudi Arabia,0-0,draw,0.658,0-0
+2026-06-12,2026-06-27,Panama,England,0-2,away_win,0.987,0-2
+2026-06-12,2026-06-27,Algeria,Austria,1-0,home_win,0.616,1-1
+2026-06-12,2026-06-27,Jordan,Argentina,0-2,away_win,1.061,0-2
+2026-06-12,2026-06-27,Colombia,Portugal,0-1,away_win,0.576,1-1
+2026-06-12,2026-06-27,DR Congo,Uzbekistan,0-0,draw,0.8,0-0
+2026-06-12,2026-06-27,Croatia,Ghana,1-0,home_win,0.91,1-0
+2026-06-13,2026-06-11,Mexico,South Africa,1-0,home_win,0.974,1-0
+2026-06-13,2026-06-11,South Korea,Czech Republic,1-0,home_win,0.673,1-1
+2026-06-13,2026-06-12,Canada,Bosnia and Herzegovina,2-0,home_win,0.919,2-0
+2026-06-13,2026-06-12,United States,Paraguay,1-0,home_win,0.799,1-1
+2026-06-13,2026-06-13,Qatar,Switzerland,0-2,away_win,0.909,0-2
+2026-06-13,2026-06-13,Brazil,Morocco,0-0,draw,0.748,0-0
+2026-06-13,2026-06-13,Haiti,Scotland,0-1,away_win,0.778,1-1
+2026-06-13,2026-06-13,Australia,Turkey,1-0,home_win,0.624,1-1
+2026-06-13,2026-06-14,Sweden,Tunisia,1-1,draw,0.602,1-1
+2026-06-13,2026-06-14,Netherlands,Japan,1-1,draw,0.568,1-1
+2026-06-13,2026-06-14,Germany,Curaçao,2-0,home_win,1.084,2-0
+2026-06-13,2026-06-14,Ivory Coast,Ecuador,0-1,away_win,0.801,0-0
+2026-06-13,2026-06-15,Belgium,Egypt,1-0,home_win,0.785,1-0
+2026-06-13,2026-06-15,Iran,New Zealand,1-0,home_win,0.921,1-0
+2026-06-13,2026-06-15,Spain,Cape Verde,2-0,home_win,1.124,2-0
+2026-06-13,2026-06-15,Saudi Arabia,Uruguay,0-1,away_win,0.972,0-1
+2026-06-13,2026-06-16,Austria,Jordan,1-0,home_win,0.662,1-1
+2026-06-13,2026-06-16,Argentina,Algeria,1-0,home_win,0.945,1-0
+2026-06-13,2026-06-16,France,Senegal,1-0,home_win,0.793,1-0
+2026-06-13,2026-06-16,Iraq,Norway,0-1,away_win,0.791,0-1
+2026-06-13,2026-06-17,Portugal,DR Congo,1-0,home_win,0.956,1-0
+2026-06-13,2026-06-17,Uzbekistan,Colombia,0-1,away_win,0.856,0-1
+2026-06-13,2026-06-17,England,Croatia,1-0,home_win,0.792,1-0
+2026-06-13,2026-06-17,Ghana,Panama,0-1,away_win,0.68,1-1
+2026-06-13,2026-06-18,Czech Republic,South Africa,1-0,home_win,0.609,1-1
+2026-06-13,2026-06-18,Mexico,South Korea,1-0,home_win,0.807,1-0
+2026-06-13,2026-06-18,Switzerland,Bosnia and Herzegovina,2-0,home_win,0.922,2-0
+2026-06-13,2026-06-18,Canada,Qatar,2-0,home_win,0.904,2-0
+2026-06-13,2026-06-19,Turkey,Paraguay,1-0,home_win,0.671,1-1
+2026-06-13,2026-06-19,Scotland,Morocco,0-1,away_win,0.913,0-1
+2026-06-13,2026-06-19,Brazil,Haiti,2-0,home_win,1.109,2-0
+2026-06-13,2026-06-19,United States,Australia,1-0,home_win,0.622,1-1
+2026-06-13,2026-06-20,Netherlands,Sweden,2-0,home_win,0.848,2-0
+2026-06-13,2026-06-20,Tunisia,Japan,0-1,away_win,0.865,0-1
+2026-06-13,2026-06-20,Germany,Ivory Coast,1-0,home_win,0.841,1-0
+2026-06-13,2026-06-20,Ecuador,Curaçao,1-0,home_win,1.037,1-0
+2026-06-13,2026-06-21,Belgium,Iran,1-0,home_win,0.655,1-1
+2026-06-13,2026-06-21,New Zealand,Egypt,0-1,away_win,0.853,0-1
+2026-06-13,2026-06-21,Spain,Saudi Arabia,2-0,home_win,1.118,2-0
+2026-06-13,2026-06-21,Uruguay,Cape Verde,1-0,home_win,0.969,1-0
+2026-06-13,2026-06-22,France,Iraq,1-0,home_win,0.994,1-0
+2026-06-13,2026-06-22,Norway,Senegal,1-1,draw,0.601,1-1
+2026-06-13,2026-06-22,Argentina,Austria,1-0,home_win,0.978,1-0
+2026-06-13,2026-06-22,Jordan,Algeria,0-1,away_win,0.704,1-1
+2026-06-13,2026-06-23,Portugal,Uzbekistan,1-0,home_win,0.876,1-0
+2026-06-13,2026-06-23,Colombia,DR Congo,1-0,home_win,0.939,1-0
+2026-06-13,2026-06-23,England,Ghana,2-0,home_win,1.098,2-0
+2026-06-13,2026-06-23,Panama,Croatia,0-1,away_win,0.769,1-1
+2026-06-13,2026-06-24,Morocco,Haiti,2-0,home_win,1.066,2-0
+2026-06-13,2026-06-24,Bosnia and Herzegovina,Qatar,1-1,draw,0.591,1-1
+2026-06-13,2026-06-24,Scotland,Brazil,0-1,away_win,0.925,0-1
+2026-06-13,2026-06-24,South Africa,South Korea,0-1,away_win,0.739,1-1
+2026-06-13,2026-06-24,Mexico,Czech Republic,1-0,home_win,0.918,1-0
+2026-06-13,2026-06-24,Canada,Switzerland,1-1,draw,0.542,1-1
+2026-06-13,2026-06-25,United States,Turkey,2-1,home_win,0.684,1-1
+2026-06-13,2026-06-25,Paraguay,Australia,0-1,away_win,0.768,0-1
+2026-06-13,2026-06-25,Curaçao,Ivory Coast,0-1,away_win,0.866,0-1
+2026-06-13,2026-06-25,Ecuador,Germany,0-1,away_win,0.689,1-1
+2026-06-13,2026-06-25,Japan,Sweden,1-0,home_win,0.821,1-1
+2026-06-13,2026-06-25,Tunisia,Netherlands,0-1,away_win,0.873,0-1
+2026-06-13,2026-06-26,Senegal,Iraq,1-0,home_win,0.845,1-0
+2026-06-13,2026-06-26,Norway,France,0-1,away_win,0.783,1-1
+2026-06-13,2026-06-26,Uruguay,Spain,0-1,away_win,0.828,0-1
+2026-06-13,2026-06-26,New Zealand,Belgium,0-1,away_win,0.98,0-1
+2026-06-13,2026-06-26,Egypt,Iran,0-1,away_win,0.699,0-0
+2026-06-13,2026-06-26,Cape Verde,Saudi Arabia,0-0,draw,0.66,0-0
+2026-06-13,2026-06-27,Panama,England,0-2,away_win,0.985,0-2
+2026-06-13,2026-06-27,Algeria,Austria,1-0,home_win,0.611,1-1
+2026-06-13,2026-06-27,Jordan,Argentina,0-2,away_win,1.055,0-2
+2026-06-13,2026-06-27,Colombia,Portugal,0-1,away_win,0.587,1-1
+2026-06-13,2026-06-27,DR Congo,Uzbekistan,0-0,draw,0.8,0-0
+2026-06-13,2026-06-27,Croatia,Ghana,1-0,home_win,0.909,1-0

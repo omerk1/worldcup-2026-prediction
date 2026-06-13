@@ -1,0 +1,5 @@
+predicted_at,date,home_team,away_team,best_guess_score,direction,expected_points,most_likely_score,actual_home_score,actual_away_score
+2026-06-12,2026-06-11,Mexico,South Africa,1-0,home_win,0.973,1-0,2,0
+2026-06-12,2026-06-11,South Korea,Czech Republic,1-0,home_win,0.676,1-1,2,1
+2026-06-12,2026-06-12,Canada,Bosnia and Herzegovina,2-0,home_win,0.984,2-0,1,1
+2026-06-12,2026-06-12,United States,Paraguay,1-0,home_win,0.732,1-1,4,1

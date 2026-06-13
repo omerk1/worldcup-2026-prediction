@@ -3,5 +3,8 @@ __pycache__/
 *.pyc
 .idea/
 data/raw/
-data/processed/
-outputs/
+data/processed/*
+!data/processed/wc_2026_live_results.csv
+outputs/*
+!outputs/history/
+!outputs/history/*.csv
