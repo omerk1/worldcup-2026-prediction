@@ -34,3 +34,57 @@ def append_history(df: pd.DataFrame, history_path: Path, key_cols: list[str], ge
 
     history_path.parent.mkdir(parents=True, exist_ok=True)
     combined.to_csv(history_path, index=False)
+
+
+def lock_prematch(
+    history_path: Path,
+    lock_path: Path,
+    date: str,
+    home_team: str,
+    away_team: str,
+    actual_home_score: int,
+    actual_away_score: int,
+) -> bool:
+    """Snapshot the earliest prediction for (date, home_team, away_team) from
+    `history_path` into `lock_path`, alongside the actual result.
+
+    This captures "what the model predicted before we knew the outcome",
+    immune to later re-runs (which retrain on the result itself). No-op if
+    `history_path` has no matching prediction, or this match is already
+    locked. Returns whether a row was added.
+    """
+    lock_path = Path(lock_path)
+    locked = None
+    if lock_path.exists():
+        locked = pd.read_csv(lock_path)
+        already = (
+            (locked["date"].astype(str) == str(date))
+            & (locked["home_team"] == home_team)
+            & (locked["away_team"] == away_team)
+        ).any()
+        if already:
+            return False
+
+    history_path = Path(history_path)
+    if not history_path.exists():
+        return False
+
+    history = pd.read_csv(history_path)
+    match_rows = history[
+        (history["date"].astype(str) == str(date))
+        & (history["home_team"] == home_team)
+        & (history["away_team"] == away_team)
+    ]
+    if match_rows.empty:
+        return False
+
+    earliest = match_rows.sort_values("generated_at").iloc[0].rename({"generated_at": "predicted_at"})
+    earliest["actual_home_score"] = actual_home_score
+    earliest["actual_away_score"] = actual_away_score
+
+    row_df = pd.DataFrame([earliest])
+    combined = pd.concat([locked, row_df], ignore_index=True) if locked is not None else row_df
+
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    combined.to_csv(lock_path, index=False)
+    return True

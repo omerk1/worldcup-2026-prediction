@@ -10,6 +10,7 @@ import pandas as pd
 
 from src.data_processing.data_loader import LIVE_RESULTS_COLUMNS, load_live_results
 from src.utils.config_loader import PROJECT_ROOT, load_config
+from src.utils.history import lock_prematch
 
 
 def main():
@@ -53,6 +54,28 @@ def main():
     live = live[LIVE_RESULTS_COLUMNS].sort_values("date")
     live.to_csv(out_path, index=False)
     print(f"Saved to {out_path}")
+
+    history_dir = PROJECT_ROOT / "outputs" / "history"
+    locked_pred = lock_prematch(
+        history_dir / "predictions_history.csv",
+        history_dir / "prematch_predictions.csv",
+        date=date.date().isoformat(),
+        home_team=args.home,
+        away_team=args.away,
+        actual_home_score=args.home_score,
+        actual_away_score=args.away_score,
+    )
+    locked_bg = lock_prematch(
+        history_dir / "best_guess_history.csv",
+        history_dir / "prematch_best_guess.csv",
+        date=date.date().isoformat(),
+        home_team=args.home,
+        away_team=args.away,
+        actual_home_score=args.home_score,
+        actual_away_score=args.away_score,
+    )
+    if locked_pred or locked_bg:
+        print("Locked pre-match prediction(s) for this result")
 
 
 if __name__ == "__main__":

@@ -59,6 +59,15 @@ little recent international history.
     `generated_at` date and appends a snapshot to `outputs/history/*.csv` (replacing same-day
     reruns). This builds up a record of how predictions evolved over the tournament, which can
     later be compared against actual results to see how the model did.
+
+    Since these history files accumulate a snapshot *every* run (including ones after a match
+    has been played and the model retrained on its result), `record_result.py` also locks in
+    the *pre-match* prediction: the earliest snapshot for that fixture, paired with the actual
+    score, written to `outputs/history/prematch_predictions.csv` and
+    `prematch_best_guess.csv`. This is the clean "predicted vs actual" record for evaluating
+    the model after the tournament (e.g. Brier score on `predictions`, or points scored on
+    `best_guess`), uncontaminated by hindsight retraining. `backfill_prematch.py` does the same
+    for results recorded before this lock-in existed (idempotent, safe to rerun).
 12. **Best-guess pick** — `predict_best_guess.py` (writes `outputs/worldcup_2026_best_guess.csv`)
     picks, for each fixture, the scoreline that maximizes expected points in a prediction game
     scored "`exact` points for an exact score, `direction` points for the direction (home
