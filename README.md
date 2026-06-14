@@ -54,9 +54,9 @@ little recent international history.
     (attack rating x expected number of matches, the latter from the tournament simulation)
     to rank Golden Boot contenders. This is a "recent form" proxy, not squad-aware - it
     doesn't account for injuries, retirements, or final squad selection.
-11. **Prediction history** — every run of `predict_fixtures.py`, `predict_best_guess.py`,
-    `simulate_tournament.py`, and `predict_top_scorers.py` stamps its output with a
-    `generated_at` date and appends a snapshot to `outputs/history/*.csv` (replacing same-day
+11. **Prediction history** — every run of `predict_fixtures.py` and `predict_best_guess.py`
+    stamps its output with a `generated_at` date and appends a snapshot to
+    `outputs/history/predictions_history.csv` / `best_guess_history.csv` (replacing same-day
     reruns). This builds up a record of how predictions evolved over the tournament, which can
     later be compared against actual results to see how the model did.
 
@@ -68,6 +68,12 @@ little recent international history.
     the model after the tournament (e.g. Brier score on `predictions`, or points scored on
     `best_guess`), uncontaminated by hindsight retraining. `backfill_prematch.py` does the same
     for results recorded before this lock-in existed (idempotent, safe to rerun).
+
+    `simulate_tournament.py` and `predict_top_scorers.py` predict a single end-of-tournament
+    outcome (champion / Golden Boot), so instead of accumulating daily snapshots they each lock
+    their *first ever* run's output to `outputs/history/pretournament_simulation.csv` /
+    `pretournament_top_scorers.csv` (never overwritten), for comparison against the actual
+    champion/Golden Boot winner once the tournament ends.
 12. **Best-guess pick** — `predict_best_guess.py` (writes `outputs/worldcup_2026_best_guess.csv`)
     picks, for each fixture, the scoreline that maximizes expected points in a prediction game
     scored "`exact` points for an exact score, `direction` points for the direction (home

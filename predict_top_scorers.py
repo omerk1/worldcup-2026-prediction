@@ -20,7 +20,7 @@ from src.models.dixon_coles import DixonColesModel
 from src.models.top_scorer import predict_top_scorers
 from src.simulation.tournament import derive_groups
 from src.utils.config_loader import PROJECT_ROOT, load_config
-from src.utils.history import append_history
+from src.utils.history import lock_first_snapshot
 
 
 def main():
@@ -60,9 +60,9 @@ def main():
     pretty["expected_goals"] = pretty["expected_goals"].round(2)
     print(pretty.to_string(index=False))
 
-    history_path = PROJECT_ROOT / "outputs" / "history" / "top_scorers_history.csv"
-    append_history(df, history_path, key_cols=["player", "team"], generated_at=as_of)
-    print(f"\nAppended snapshot to {history_path}")
+    lock_path = PROJECT_ROOT / "outputs" / "history" / "pretournament_top_scorers.csv"
+    if lock_first_snapshot(df, lock_path, generated_at=as_of):
+        print(f"\nLocked pre-tournament snapshot to {lock_path}")
 
 
 if __name__ == "__main__":

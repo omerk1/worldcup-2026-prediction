@@ -23,7 +23,7 @@ def append_history(df: pd.DataFrame, history_path: Path, key_cols: list[str], ge
 
     history_path = Path(history_path)
     if history_path.exists():
-        existing = pd.read_csv(history_path)
+        existing = pd.read_csv(history_path, float_precision="round_trip")
         is_rerun = (existing["generated_at"] == snapshot["generated_at"].iloc[0]) & existing[key_cols].apply(tuple, axis=1).isin(
             set(snapshot[key_cols].apply(tuple, axis=1))
         )
@@ -34,6 +34,30 @@ def append_history(df: pd.DataFrame, history_path: Path, key_cols: list[str], ge
 
     history_path.parent.mkdir(parents=True, exist_ok=True)
     combined.to_csv(history_path, index=False)
+
+
+def lock_first_snapshot(df: pd.DataFrame, lock_path: Path, generated_at: pd.Timestamp) -> bool:
+    """Write `df` to `lock_path`, tagged with `generated_at`, but only if
+    `lock_path` doesn't already exist.
+
+    Captures a one-time "pre-tournament" snapshot (e.g. tournament-winner or
+    Golden Boot odds) for later comparison against the actual outcome, without
+    being overwritten by later re-runs. Returns whether the snapshot was
+    written.
+    """
+    lock_path = Path(lock_path)
+    if lock_path.exists():
+        return False
+
+    snapshot = df.copy()
+    if "generated_at" not in snapshot.columns:
+        snapshot.insert(0, "generated_at", generated_at.date().isoformat())
+    else:
+        snapshot["generated_at"] = generated_at.date().isoformat()
+
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot.to_csv(lock_path, index=False)
+    return True
 
 
 def lock_prematch(
@@ -56,7 +80,7 @@ def lock_prematch(
     lock_path = Path(lock_path)
     locked = None
     if lock_path.exists():
-        locked = pd.read_csv(lock_path)
+        locked = pd.read_csv(lock_path, float_precision="round_trip")
         already = (
             (locked["date"].astype(str) == str(date))
             & (locked["home_team"] == home_team)
@@ -69,7 +93,7 @@ def lock_prematch(
     if not history_path.exists():
         return False
 
-    history = pd.read_csv(history_path)
+    history = pd.read_csv(history_path, float_precision="round_trip")
     match_rows = history[
         (history["date"].astype(str) == str(date))
         & (history["home_team"] == home_team)
