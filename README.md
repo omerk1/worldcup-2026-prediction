@@ -103,11 +103,12 @@ python train_ratings.py
 python predict_match.py --home Mexico --away "South Africa" --host
 python predict_match.py --home "South Korea" --away "Czech Republic"
 
-# Predict all 72 group-stage fixtures (writes outputs/worldcup_2026_predictions.csv)
+# Predict remaining (not-yet-played) group-stage fixtures
+# (writes outputs/worldcup_2026_predictions.csv; --from-date to include earlier ones too)
 python predict_fixtures.py
 
 # Best-guess picks for a "3 for exact score, 1 for direction" prediction game
-# (writes outputs/worldcup_2026_best_guess.csv)
+# (writes outputs/worldcup_2026_best_guess.csv, also remaining fixtures only)
 python predict_best_guess.py
 
 # Record an actual result as the tournament progresses, then re-fit

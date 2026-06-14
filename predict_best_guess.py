@@ -24,7 +24,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratings", default="data/processed/team_ratings.json")
     parser.add_argument("--out", default="outputs/worldcup_2026_best_guess.csv")
-    parser.add_argument("--from-date", default=None, help="Only show fixtures on/after this date (YYYY-MM-DD)")
+    parser.add_argument("--from-date", default=None, help="Only show fixtures on/after this date (YYYY-MM-DD, default: today)")
     args = parser.parse_args()
 
     config = load_config()
@@ -32,8 +32,6 @@ def main():
 
     results = load_results()
     fixtures = get_worldcup_2026_fixtures(results)
-    if args.from_date:
-        fixtures = fixtures[fixtures["date"] >= args.from_date]
 
     host_nations = set(config["model"]["host_nations"])
     scoring = config["scoring"]["group_stage"]
@@ -58,14 +56,19 @@ def main():
 
     out_df = pd.DataFrame(rows)
     out_df.insert(0, "generated_at", generated_at.date().isoformat())
-    out_path = PROJECT_ROOT / args.out
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_df.to_csv(out_path, index=False)
-    print(f"Wrote {len(out_df)} best-guess picks to {out_path}\n")
-    print(out_df.to_string(index=False))
 
     lock_path = PROJECT_ROOT / "outputs" / "history" / "prematch_best_guess.csv"
     newly_seen = update_predictions(out_df, lock_path, key_cols=["date", "home_team", "away_team"])
+
+    from_date = args.from_date or generated_at.date().isoformat()
+    display_df = out_df[out_df["date"].astype(str) >= from_date]
+
+    out_path = PROJECT_ROOT / args.out
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    display_df.to_csv(out_path, index=False)
+    print(f"Wrote {len(display_df)} best-guess picks to {out_path}\n")
+    print(display_df.to_string(index=False))
+
     print(f"\nUpdated pre-match predictions for unplayed fixtures in {lock_path}")
     if newly_seen:
         print(f"({newly_seen} fixture(s) seen for the first time)")
