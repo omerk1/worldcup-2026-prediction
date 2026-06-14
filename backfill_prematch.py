@@ -1,9 +1,10 @@
-"""Backfill outputs/history/prematch_predictions.csv and
-outputs/history/prematch_best_guess.csv for results already recorded in
-wc_2026_live_results.csv (e.g. results recorded before the lock-in mechanism
-in record_result.py existed).
+"""Fill in actual scores on outputs/history/prematch_predictions.csv and
+outputs/history/prematch_best_guess.csv for every result already recorded in
+wc_2026_live_results.csv.
 
-Idempotent - skips matches already locked.
+Safe to rerun - re-recording an already-filled-in actual is a no-op write of
+the same value. Useful as a one-off safety net if a result was added to
+wc_2026_live_results.csv without going through record_result.py.
 
 Example:
     python backfill_prematch.py
@@ -12,7 +13,7 @@ import pandas as pd
 
 from src.data_processing.data_loader import load_live_results
 from src.utils.config_loader import PROJECT_ROOT, load_config
-from src.utils.history import lock_prematch
+from src.utils.history import record_actual_result
 
 
 def main():
@@ -21,15 +22,11 @@ def main():
     live = load_live_results(processed_dir)
 
     history_dir = PROJECT_ROOT / "outputs" / "history"
-    locked = 0
+    recorded = 0
     for _, row in live.iterrows():
         date = pd.Timestamp(row["date"]).date().isoformat()
-        for history_name, lock_name in [
-            ("predictions_history.csv", "prematch_predictions.csv"),
-            ("best_guess_history.csv", "prematch_best_guess.csv"),
-        ]:
-            if lock_prematch(
-                history_dir / history_name,
+        for lock_name in ["prematch_predictions.csv", "prematch_best_guess.csv"]:
+            if record_actual_result(
                 history_dir / lock_name,
                 date=date,
                 home_team=row["home_team"],
@@ -37,9 +34,9 @@ def main():
                 actual_home_score=int(row["home_score"]),
                 actual_away_score=int(row["away_score"]),
             ):
-                locked += 1
+                recorded += 1
 
-    print(f"Locked {locked} pre-match prediction rows.")
+    print(f"Recorded {recorded} actual result(s) on locked pre-match predictions.")
 
 
 if __name__ == "__main__":

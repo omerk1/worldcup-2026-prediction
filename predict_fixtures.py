@@ -6,7 +6,7 @@ import pandas as pd
 from src.data_processing.data_loader import get_worldcup_2026_fixtures, load_results
 from src.models.dixon_coles import DixonColesModel
 from src.utils.config_loader import PROJECT_ROOT, load_config
-from src.utils.history import append_history
+from src.utils.history import update_predictions
 
 
 def main():
@@ -54,9 +54,11 @@ def main():
     print(f"Wrote {len(out_df)} predictions to {out_path}\n")
     print(out_df.to_string(index=False))
 
-    history_path = PROJECT_ROOT / "outputs" / "history" / "predictions_history.csv"
-    append_history(out_df, history_path, key_cols=["date", "home_team", "away_team"], generated_at=generated_at)
-    print(f"\nAppended snapshot to {history_path}")
+    lock_path = PROJECT_ROOT / "outputs" / "history" / "prematch_predictions.csv"
+    newly_seen = update_predictions(out_df, lock_path, key_cols=["date", "home_team", "away_team"])
+    print(f"\nUpdated pre-match predictions for unplayed fixtures in {lock_path}")
+    if newly_seen:
+        print(f"({newly_seen} fixture(s) seen for the first time)")
 
 
 if __name__ == "__main__":

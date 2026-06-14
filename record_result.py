@@ -10,7 +10,7 @@ import pandas as pd
 
 from src.data_processing.data_loader import LIVE_RESULTS_COLUMNS, load_live_results
 from src.utils.config_loader import PROJECT_ROOT, load_config
-from src.utils.history import lock_prematch
+from src.utils.history import record_actual_result
 
 
 def main():
@@ -56,8 +56,7 @@ def main():
     print(f"Saved to {out_path}")
 
     history_dir = PROJECT_ROOT / "outputs" / "history"
-    locked_pred = lock_prematch(
-        history_dir / "predictions_history.csv",
+    recorded_pred = record_actual_result(
         history_dir / "prematch_predictions.csv",
         date=date.date().isoformat(),
         home_team=args.home,
@@ -65,8 +64,7 @@ def main():
         actual_home_score=args.home_score,
         actual_away_score=args.away_score,
     )
-    locked_bg = lock_prematch(
-        history_dir / "best_guess_history.csv",
+    recorded_bg = record_actual_result(
         history_dir / "prematch_best_guess.csv",
         date=date.date().isoformat(),
         home_team=args.home,
@@ -74,8 +72,8 @@ def main():
         actual_home_score=args.home_score,
         actual_away_score=args.away_score,
     )
-    if locked_pred or locked_bg:
-        print("Locked pre-match prediction(s) for this result")
+    if recorded_pred or recorded_bg:
+        print("Recorded actual result on locked pre-match prediction(s)")
 
 
 if __name__ == "__main__":

@@ -1,39 +1,9 @@
-"""Append timestamped prediction snapshots to a running history CSV.
-
-Lets us look back at how predictions evolved over the tournament (e.g. to
-compare a team's win probability before/after each of its matches), and
-later compare past predictions against actual results.
+"""Track pre-match/pre-tournament prediction snapshots for later evaluation
+against actual results.
 """
 from pathlib import Path
 
 import pandas as pd
-
-
-def append_history(df: pd.DataFrame, history_path: Path, key_cols: list[str], generated_at: pd.Timestamp) -> None:
-    """Append `df` to `history_path`, tagged with `generated_at`.
-
-    Re-running on the same date replaces that date's previous snapshot for the
-    same `key_cols` rather than duplicating it.
-    """
-    snapshot = df.copy()
-    if "generated_at" not in snapshot.columns:
-        snapshot.insert(0, "generated_at", generated_at.date().isoformat())
-    else:
-        snapshot["generated_at"] = generated_at.date().isoformat()
-
-    history_path = Path(history_path)
-    if history_path.exists():
-        existing = pd.read_csv(history_path, float_precision="round_trip")
-        is_rerun = (existing["generated_at"] == snapshot["generated_at"].iloc[0]) & existing[key_cols].apply(tuple, axis=1).isin(
-            set(snapshot[key_cols].apply(tuple, axis=1))
-        )
-        existing = existing[~is_rerun]
-        combined = pd.concat([existing, snapshot], ignore_index=True)
-    else:
-        combined = snapshot
-
-    history_path.parent.mkdir(parents=True, exist_ok=True)
-    combined.to_csv(history_path, index=False)
 
 
 def lock_first_snapshot(df: pd.DataFrame, lock_path: Path, generated_at: pd.Timestamp) -> bool:
@@ -60,8 +30,55 @@ def lock_first_snapshot(df: pd.DataFrame, lock_path: Path, generated_at: pd.Time
     return True
 
 
-def lock_prematch(
-    history_path: Path,
+def update_predictions(df: pd.DataFrame, lock_path: Path, key_cols: list[str]) -> int:
+    """Write `df`'s predictions for not-yet-played fixtures to `lock_path`,
+    keyed by `key_cols`, leaving already-played fixtures untouched.
+
+    A fixture already in `lock_path` with an actual result recorded is
+    frozen there, capturing the prediction made right before that match was
+    played. Every other fixture in `df` overwrites (or adds) the
+    corresponding row in `lock_path`, so an unplayed fixture's pre-match
+    prediction stays up to date with all results known so far (e.g. a
+    team's second group game reflects its first game's result).
+
+    `df` must contain the full current set of fixtures and have a
+    `generated_at` column, which is renamed to `predicted_at`. Returns the
+    number of fixtures in `df` not previously present in `lock_path` at all
+    (e.g. newly-revealed knockout fixtures).
+    """
+    lock_path = Path(lock_path)
+    snapshot = df.rename(columns={"generated_at": "predicted_at"}).copy()
+    for col in key_cols:
+        snapshot[col] = snapshot[col].astype(str)
+    snapshot["actual_home_score"] = pd.array([None] * len(snapshot), dtype="Int64")
+    snapshot["actual_away_score"] = pd.array([None] * len(snapshot), dtype="Int64")
+
+    if lock_path.exists():
+        existing = pd.read_csv(lock_path, float_precision="round_trip")
+        existing["actual_home_score"] = existing["actual_home_score"].astype("Int64")
+        existing["actual_away_score"] = existing["actual_away_score"].astype("Int64")
+
+        existing_keys = existing[key_cols].apply(tuple, axis=1)
+        snapshot_keys = snapshot[key_cols].apply(tuple, axis=1)
+
+        played_keys = set(existing_keys[existing["actual_home_score"].notna()])
+        frozen = existing[existing_keys.isin(played_keys)]
+        live = snapshot[~snapshot_keys.isin(played_keys)]
+
+        newly_seen = int((~snapshot_keys.isin(set(existing_keys))).sum())
+        combined = pd.concat([frozen, live], ignore_index=True)
+    else:
+        combined = snapshot
+        newly_seen = len(combined)
+
+    combined = combined.sort_values(key_cols).reset_index(drop=True)
+
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    combined.to_csv(lock_path, index=False)
+    return newly_seen
+
+
+def record_actual_result(
     lock_path: Path,
     date: str,
     home_team: str,
@@ -69,46 +86,28 @@ def lock_prematch(
     actual_home_score: int,
     actual_away_score: int,
 ) -> bool:
-    """Snapshot the earliest prediction for (date, home_team, away_team) from
-    `history_path` into `lock_path`, alongside the actual result.
+    """Fill in the actual result for the locked pre-match prediction matching
+    (date, home_team, away_team) in `lock_path`.
 
-    This captures "what the model predicted before we knew the outcome",
-    immune to later re-runs (which retrain on the result itself). No-op if
-    `history_path` has no matching prediction, or this match is already
-    locked. Returns whether a row was added.
+    No-op if `lock_path` doesn't exist or has no matching row. Returns whether
+    a row was updated.
     """
     lock_path = Path(lock_path)
-    locked = None
-    if lock_path.exists():
-        locked = pd.read_csv(lock_path, float_precision="round_trip")
-        already = (
-            (locked["date"].astype(str) == str(date))
-            & (locked["home_team"] == home_team)
-            & (locked["away_team"] == away_team)
-        ).any()
-        if already:
-            return False
-
-    history_path = Path(history_path)
-    if not history_path.exists():
+    if not lock_path.exists():
         return False
 
-    history = pd.read_csv(history_path, float_precision="round_trip")
-    match_rows = history[
-        (history["date"].astype(str) == str(date))
-        & (history["home_team"] == home_team)
-        & (history["away_team"] == away_team)
-    ]
-    if match_rows.empty:
+    locked = pd.read_csv(lock_path, float_precision="round_trip")
+    mask = (
+        (locked["date"].astype(str) == str(date))
+        & (locked["home_team"] == home_team)
+        & (locked["away_team"] == away_team)
+    )
+    if not mask.any():
         return False
 
-    earliest = match_rows.sort_values("generated_at").iloc[0].rename({"generated_at": "predicted_at"})
-    earliest["actual_home_score"] = actual_home_score
-    earliest["actual_away_score"] = actual_away_score
-
-    row_df = pd.DataFrame([earliest])
-    combined = pd.concat([locked, row_df], ignore_index=True) if locked is not None else row_df
-
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    combined.to_csv(lock_path, index=False)
+    locked["actual_home_score"] = locked["actual_home_score"].astype("Int64")
+    locked["actual_away_score"] = locked["actual_away_score"].astype("Int64")
+    locked.loc[mask, "actual_home_score"] = actual_home_score
+    locked.loc[mask, "actual_away_score"] = actual_away_score
+    locked.to_csv(lock_path, index=False)
     return True
