@@ -3,3 +3,7 @@ predicted_at,date,home_team,away_team,city,host_advantage,expected_goals_home,ex
 2026-06-11,2026-06-11,South Korea,Czech Republic,Zapopan,False,1.4,1.09,1-1,0.431,0.287,0.282,2,1
 2026-06-11,2026-06-12,Canada,Bosnia and Herzegovina,Toronto,True,2.24,0.7,2-0,0.716,0.188,0.095,1,1
 2026-06-11,2026-06-12,United States,Paraguay,Inglewood,True,1.34,0.89,1-1,0.462,0.3,0.238,4,1
+2026-06-11,2026-06-13,Qatar,Switzerland,Santa Clara,False,0.8,2.1,0-2,0.124,0.209,0.668,1,1
+2026-06-11,2026-06-13,Brazil,Morocco,East Rutherford,False,0.92,0.78,0-0,0.36,0.359,0.282,1,1
+2026-06-11,2026-06-13,Haiti,Scotland,Foxborough,False,0.91,1.69,1-1,0.193,0.259,0.548,0,1
+2026-06-11,2026-06-13,Australia,Turkey,Vancouver,False,1.27,1.07,1-1,0.4,0.3,0.301,2,0

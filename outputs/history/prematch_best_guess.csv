@@ -3,3 +3,7 @@ predicted_at,date,home_team,away_team,best_guess_score,direction,expected_points
 2026-06-12,2026-06-11,South Korea,Czech Republic,1-0,home_win,0.676,1-1,2,1
 2026-06-12,2026-06-12,Canada,Bosnia and Herzegovina,2-0,home_win,0.984,2-0,1,1
 2026-06-12,2026-06-12,United States,Paraguay,1-0,home_win,0.732,1-1,4,1
+2026-06-12,2026-06-13,Qatar,Switzerland,0-2,away_win,0.909,0-2,1,1
+2026-06-12,2026-06-13,Brazil,Morocco,0-0,draw,0.741,0-0,1,1
+2026-06-12,2026-06-13,Haiti,Scotland,0-1,away_win,0.78,1-1,0,1
+2026-06-12,2026-06-13,Australia,Turkey,1-0,home_win,0.627,1-1,2,0
