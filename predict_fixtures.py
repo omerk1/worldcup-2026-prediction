@@ -1,9 +1,9 @@
-"""Predict scores for all 72 World Cup 2026 group-stage fixtures."""
+"""Predict scores for all World Cup 2026 fixtures (group stage + knockouts)."""
 import argparse
 
 import pandas as pd
 
-from src.data_processing.data_loader import get_worldcup_2026_fixtures, load_results
+from src.data_processing.data_loader import get_worldcup_2026_fixtures, load_knockout_fixtures, load_results
 from src.models.dixon_coles import DixonColesModel
 from src.utils.config_loader import PROJECT_ROOT, load_config
 from src.utils.history import update_predictions
@@ -20,7 +20,14 @@ def main():
     model = DixonColesModel.load(PROJECT_ROOT / args.ratings)
 
     results = load_results()
-    fixtures = get_worldcup_2026_fixtures(results)
+    group_fixtures = get_worldcup_2026_fixtures(results)
+    group_fixtures = group_fixtures.assign(stage="group_stage")
+    knockout_fixtures = load_knockout_fixtures()
+    fixtures = pd.concat(
+        [group_fixtures[["date", "home_team", "away_team", "stage", "city", "neutral"]],
+         knockout_fixtures[["date", "home_team", "away_team", "stage", "city", "neutral"]]],
+        ignore_index=True,
+    ).sort_values("date").reset_index(drop=True)
 
     host_nations = set(config["model"]["host_nations"])
 
@@ -32,6 +39,7 @@ def main():
             "date": row["date"].date(),
             "home_team": row["home_team"],
             "away_team": row["away_team"],
+            "stage": row["stage"],
             "city": row["city"],
             "host_advantage": host,
             "expected_goals_home": round(pred["expected_goals_home"], 2),

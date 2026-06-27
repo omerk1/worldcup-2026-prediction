@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
+import pytest
 
-from src.data_processing.data_loader import get_played_matches, latest_fifa_points
+from src.data_processing.data_loader import get_played_matches, infer_stage, latest_fifa_points
 
 
 def _results_df() -> pd.DataFrame:
@@ -73,6 +74,30 @@ def _fifa_df() -> pd.DataFrame:
         {"date": "2024-09-19", "team": "Weak", "total_points": 1000.0},
         {"date": "2024-09-19", "team": "Riser", "total_points": 1100.0},
     ]).assign(date=lambda d: pd.to_datetime(d["date"]))
+
+
+def _knockout_fixtures_df() -> pd.DataFrame:
+    return pd.DataFrame([
+        {"date": pd.Timestamp("2026-06-28"), "home_team": "South Africa", "away_team": "Canada",
+         "stage": "round_of_32", "city": "Inglewood", "neutral": True},
+    ])
+
+
+def test_infer_stage_group_stage_by_date():
+    knockouts = _knockout_fixtures_df()
+    assert infer_stage(pd.Timestamp("2026-06-25"), "Japan", "Sweden", knockouts) == "group_stage"
+
+
+def test_infer_stage_knockout_found():
+    knockouts = _knockout_fixtures_df()
+    stage = infer_stage(pd.Timestamp("2026-06-28"), "South Africa", "Canada", knockouts)
+    assert stage == "round_of_32"
+
+
+def test_infer_stage_knockout_not_found_raises():
+    knockouts = _knockout_fixtures_df()
+    with pytest.raises(ValueError, match="No knockout fixture found"):
+        infer_stage(pd.Timestamp("2026-06-28"), "France", "Brazil", knockouts)
 
 
 def test_latest_fifa_points_without_override():

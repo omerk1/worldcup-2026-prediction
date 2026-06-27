@@ -57,6 +57,8 @@ def update_predictions(df: pd.DataFrame, lock_path: Path, key_cols: list[str]) -
         existing = pd.read_csv(lock_path, float_precision="round_trip")
         existing["actual_home_score"] = existing["actual_home_score"].astype("Int64")
         existing["actual_away_score"] = existing["actual_away_score"].astype("Int64")
+        if "stage" not in existing.columns and "stage" in snapshot.columns:
+            existing["stage"] = "group_stage"
 
         existing_keys = existing[key_cols].apply(tuple, axis=1)
         snapshot_keys = snapshot[key_cols].apply(tuple, axis=1)

@@ -137,6 +137,31 @@ def test_update_predictions_appends_newly_seen_fixture_and_keeps_existing(tmp_pa
     assert saved.iloc[1]["home_team"] == "Brazil"
 
 
+def test_update_predictions_backfills_stage_for_existing_rows_without_stage(tmp_path):
+    lock_path = tmp_path / "prematch_predictions.csv"
+    # Simulate a pre-migration CSV that has no stage column.
+    old_df = pd.DataFrame([
+        {"predicted_at": "2026-06-11", "date": "2026-06-11", "home_team": "Mexico",
+         "away_team": "South Africa", "predicted_score": "1-0",
+         "actual_home_score": 2, "actual_away_score": 0},
+    ])
+    old_df = old_df.astype({"actual_home_score": "Int64", "actual_away_score": "Int64"})
+    old_df.to_csv(lock_path, index=False)
+
+    # New run with stage in snapshot; the frozen row should be backfilled.
+    df_new = pd.DataFrame([
+        {"generated_at": "2026-06-12", "date": "2026-06-11", "home_team": "Mexico",
+         "away_team": "South Africa", "predicted_score": "2-1", "stage": "group_stage"},
+    ])
+    update_predictions(df_new, lock_path, key_cols=["date", "home_team", "away_team"])
+
+    saved = pd.read_csv(lock_path, float_precision="round_trip")
+    assert "stage" in saved.columns
+    assert saved.iloc[0]["stage"] == "group_stage"
+    # The row is frozen (has actual scores), so original prediction is kept.
+    assert saved.iloc[0]["predicted_score"] == "1-0"
+
+
 def _locked_predictions(tmp_path):
     path = tmp_path / "prematch_predictions.csv"
     df = pd.DataFrame([

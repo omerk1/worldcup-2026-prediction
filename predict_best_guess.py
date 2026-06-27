@@ -13,7 +13,7 @@ import argparse
 
 import pandas as pd
 
-from src.data_processing.data_loader import get_worldcup_2026_fixtures, load_results
+from src.data_processing.data_loader import get_worldcup_2026_fixtures, load_knockout_fixtures, load_results
 from src.models.best_guess import best_guess
 from src.models.dixon_coles import DixonColesModel
 from src.utils.config_loader import PROJECT_ROOT, load_config
@@ -31,14 +31,21 @@ def main():
     model = DixonColesModel.load(PROJECT_ROOT / args.ratings)
 
     results = load_results()
-    fixtures = get_worldcup_2026_fixtures(results)
+    group_fixtures = get_worldcup_2026_fixtures(results)
+    group_fixtures = group_fixtures.assign(stage="group_stage")
+    knockout_fixtures = load_knockout_fixtures()
+    fixtures = pd.concat(
+        [group_fixtures[["date", "home_team", "away_team", "stage", "city", "neutral"]],
+         knockout_fixtures[["date", "home_team", "away_team", "stage", "city", "neutral"]]],
+        ignore_index=True,
+    ).sort_values("date").reset_index(drop=True)
 
     host_nations = set(config["model"]["host_nations"])
-    scoring = config["scoring"]["group_stage"]
 
     rows = []
     for _, row in fixtures.iterrows():
         host = (not row["neutral"]) and (row["home_team"] in host_nations)
+        scoring = config["scoring"][row["stage"]]
         matrix = model.score_matrix(row["home_team"], row["away_team"], host=host)
         pred = model.predict(row["home_team"], row["away_team"], host=host)
         guess = best_guess(matrix, direction_points=scoring["direction"], exact_points=scoring["exact"])
@@ -46,6 +53,7 @@ def main():
             "date": row["date"].date(),
             "home_team": row["home_team"],
             "away_team": row["away_team"],
+            "stage": row["stage"],
             "best_guess_score": guess["best_guess_score"],
             "direction": guess["direction"],
             "expected_points": round(guess["expected_points"], 3),

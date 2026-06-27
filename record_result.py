@@ -8,7 +8,7 @@ import argparse
 
 import pandas as pd
 
-from src.data_processing.data_loader import LIVE_RESULTS_COLUMNS, load_live_results
+from src.data_processing.data_loader import LIVE_RESULTS_COLUMNS, load_knockout_fixtures, load_live_results, infer_stage
 from src.utils.config_loader import PROJECT_ROOT, load_config
 from src.utils.history import record_actual_result
 
@@ -30,6 +30,9 @@ def main():
     live = load_live_results(processed_dir)
 
     date = pd.Timestamp(args.date)
+    knockout_fixtures = load_knockout_fixtures()
+    stage = infer_stage(date, args.home, args.away, knockout_fixtures)
+
     mask = (
         (live["date"] == date)
         & (live["home_team"] == args.home)
@@ -42,10 +45,11 @@ def main():
         "away_team": args.away,
         "home_score": args.home_score,
         "away_score": args.away_score,
+        "stage": stage,
     }
 
     if mask.any():
-        live.loc[mask, ["home_score", "away_score"]] = [args.home_score, args.away_score]
+        live.loc[mask, ["home_score", "away_score", "stage"]] = [args.home_score, args.away_score, stage]
         print(f"Updated existing result: {args.home} {args.home_score}-{args.away_score} {args.away}")
     else:
         live = pd.concat([live, pd.DataFrame([row])], ignore_index=True)

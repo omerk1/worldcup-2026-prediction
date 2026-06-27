@@ -86,7 +86,9 @@ def tournament_weight(tournament: str, weights: dict) -> float:
     return weights["other"]
 
 
-LIVE_RESULTS_COLUMNS = ["date", "home_team", "away_team", "home_score", "away_score"]
+LIVE_RESULTS_COLUMNS = ["date", "home_team", "away_team", "home_score", "away_score", "stage"]
+
+GROUP_STAGE_CUTOFF = pd.Timestamp("2026-06-27")
 
 
 def load_live_results(processed_dir: Path | None = None) -> pd.DataFrame:
@@ -95,7 +97,46 @@ def load_live_results(processed_dir: Path | None = None) -> pd.DataFrame:
     path = processed_dir / "wc_2026_live_results.csv"
     if not path.exists():
         return pd.DataFrame(columns=LIVE_RESULTS_COLUMNS)
+    df = pd.read_csv(path, parse_dates=["date"])
+    if "stage" not in df.columns:
+        df["stage"] = "group_stage"
+    return df
+
+
+def load_knockout_fixtures(fixtures_dir: Path | None = None) -> pd.DataFrame:
+    """Knockout-stage fixtures from data/fixtures/worldcup_2026_knockouts.csv."""
+    fixtures_dir = fixtures_dir or (PROJECT_ROOT / "data" / "fixtures")
+    path = fixtures_dir / "worldcup_2026_knockouts.csv"
+    if not path.exists():
+        return pd.DataFrame(columns=["date", "home_team", "away_team", "stage", "city", "neutral"])
     return pd.read_csv(path, parse_dates=["date"])
+
+
+def infer_stage(
+    date: pd.Timestamp,
+    home_team: str,
+    away_team: str,
+    knockout_fixtures: pd.DataFrame,
+) -> str:
+    """Return the competition stage for a match.
+
+    Group-stage matches (on or before GROUP_STAGE_CUTOFF) always return
+    "group_stage". For later dates, the match must appear in `knockout_fixtures`
+    or a ValueError is raised — there is no silent fallback.
+    """
+    if date <= GROUP_STAGE_CUTOFF:
+        return "group_stage"
+    match = knockout_fixtures[
+        (knockout_fixtures["date"] == date)
+        & (knockout_fixtures["home_team"] == home_team)
+        & (knockout_fixtures["away_team"] == away_team)
+    ]
+    if len(match) == 0:
+        raise ValueError(
+            f"No knockout fixture found for {home_team} vs {away_team} on "
+            f"{date.date()} — add it to worldcup_2026_knockouts.csv first"
+        )
+    return str(match.iloc[0]["stage"])
 
 
 def get_played_matches(
