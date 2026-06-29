@@ -86,7 +86,7 @@ def tournament_weight(tournament: str, weights: dict) -> float:
     return weights["other"]
 
 
-LIVE_RESULTS_COLUMNS = ["date", "home_team", "away_team", "home_score", "away_score", "stage"]
+LIVE_RESULTS_COLUMNS = ["date", "home_team", "away_team", "home_score", "away_score", "et_home_score", "et_away_score", "stage"]
 
 GROUP_STAGE_CUTOFF = pd.Timestamp("2026-06-27")
 
@@ -100,6 +100,9 @@ def load_live_results(processed_dir: Path | None = None) -> pd.DataFrame:
     df = pd.read_csv(path, parse_dates=["date"])
     if "stage" not in df.columns:
         df["stage"] = "group_stage"
+    if "et_home_score" not in df.columns:
+        df["et_home_score"] = pd.NA
+        df["et_away_score"] = pd.NA
     return df
 
 

@@ -52,6 +52,8 @@ def update_predictions(df: pd.DataFrame, lock_path: Path, key_cols: list[str]) -
         snapshot[col] = snapshot[col].astype(str)
     snapshot["actual_home_score"] = pd.array([None] * len(snapshot), dtype="Int64")
     snapshot["actual_away_score"] = pd.array([None] * len(snapshot), dtype="Int64")
+    snapshot["actual_et_home_score"] = pd.array([None] * len(snapshot), dtype="Int64")
+    snapshot["actual_et_away_score"] = pd.array([None] * len(snapshot), dtype="Int64")
 
     if lock_path.exists():
         existing = pd.read_csv(lock_path, float_precision="round_trip")
@@ -59,6 +61,12 @@ def update_predictions(df: pd.DataFrame, lock_path: Path, key_cols: list[str]) -
         existing["actual_away_score"] = existing["actual_away_score"].astype("Int64")
         if "stage" not in existing.columns and "stage" in snapshot.columns:
             existing["stage"] = "group_stage"
+        if "actual_et_home_score" not in existing.columns:
+            existing["actual_et_home_score"] = pd.array([None] * len(existing), dtype="Int64")
+            existing["actual_et_away_score"] = pd.array([None] * len(existing), dtype="Int64")
+        else:
+            existing["actual_et_home_score"] = existing["actual_et_home_score"].astype("Int64")
+            existing["actual_et_away_score"] = existing["actual_et_away_score"].astype("Int64")
 
         existing_keys = existing[key_cols].apply(tuple, axis=1)
         snapshot_keys = snapshot[key_cols].apply(tuple, axis=1)
@@ -87,9 +95,14 @@ def record_actual_result(
     away_team: str,
     actual_home_score: int,
     actual_away_score: int,
+    actual_et_home_score: int | None = None,
+    actual_et_away_score: int | None = None,
 ) -> bool:
     """Fill in the actual result for the locked pre-match prediction matching
     (date, home_team, away_team) in `lock_path`.
+
+    For knockout games that go to extra time, pass the 120-minute score via
+    `actual_et_home_score` / `actual_et_away_score`.
 
     No-op if `lock_path` doesn't exist or has no matching row. Returns whether
     a row was updated.
@@ -109,7 +122,17 @@ def record_actual_result(
 
     locked["actual_home_score"] = locked["actual_home_score"].astype("Int64")
     locked["actual_away_score"] = locked["actual_away_score"].astype("Int64")
+    if "actual_et_home_score" not in locked.columns:
+        locked["actual_et_home_score"] = pd.array([None] * len(locked), dtype="Int64")
+        locked["actual_et_away_score"] = pd.array([None] * len(locked), dtype="Int64")
+    else:
+        locked["actual_et_home_score"] = locked["actual_et_home_score"].astype("Int64")
+        locked["actual_et_away_score"] = locked["actual_et_away_score"].astype("Int64")
+
     locked.loc[mask, "actual_home_score"] = actual_home_score
     locked.loc[mask, "actual_away_score"] = actual_away_score
+    if actual_et_home_score is not None:
+        locked.loc[mask, "actual_et_home_score"] = actual_et_home_score
+        locked.loc[mask, "actual_et_away_score"] = actual_et_away_score
     locked.to_csv(lock_path, index=False)
     return True

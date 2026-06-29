@@ -56,6 +56,7 @@ def test_update_predictions_creates_file_on_first_run(tmp_path):
     assert list(saved.columns) == [
         "predicted_at", "date", "home_team", "away_team", "predicted_score",
         "actual_home_score", "actual_away_score",
+        "actual_et_home_score", "actual_et_away_score",
     ]
     assert saved.iloc[0]["predicted_at"] == "2026-06-11"
     assert pd.isna(saved.iloc[0]["actual_home_score"])
@@ -211,3 +212,33 @@ def test_record_actual_result_missing_file_is_noop(tmp_path):
 
     assert recorded is False
     assert not lock_path.exists()
+
+
+def test_record_actual_result_fills_in_et_score(tmp_path):
+    lock_path = _locked_predictions(tmp_path)
+
+    recorded = record_actual_result(
+        lock_path, date="2026-06-11", home_team="Mexico", away_team="South Africa",
+        actual_home_score=1, actual_away_score=1,
+        actual_et_home_score=2, actual_et_away_score=1,
+    )
+
+    assert recorded is True
+    saved = pd.read_csv(lock_path, float_precision="round_trip")
+    assert saved.iloc[0]["actual_home_score"] == 1
+    assert saved.iloc[0]["actual_away_score"] == 1
+    assert saved.iloc[0]["actual_et_home_score"] == 2
+    assert saved.iloc[0]["actual_et_away_score"] == 1
+
+
+def test_record_actual_result_et_score_not_set_when_omitted(tmp_path):
+    lock_path = _locked_predictions(tmp_path)
+
+    record_actual_result(
+        lock_path, date="2026-06-11", home_team="Mexico", away_team="South Africa",
+        actual_home_score=2, actual_away_score=0,
+    )
+
+    saved = pd.read_csv(lock_path, float_precision="round_trip")
+    assert pd.isna(saved.iloc[0]["actual_et_home_score"])
+    assert pd.isna(saved.iloc[0]["actual_et_away_score"])

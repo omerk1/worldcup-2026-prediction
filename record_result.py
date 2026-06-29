@@ -3,6 +3,10 @@
 Usage:
     python record_result.py --date 2026-06-11 --home Mexico --away "South Africa" \
         --home-score 2 --away-score 0
+
+    # Knockout game that went to extra time:
+    python record_result.py --date 2026-06-28 --home Brazil --away France \
+        --home-score 1 --away-score 1 --et-home 2 --et-away 1
 """
 import argparse
 
@@ -20,6 +24,8 @@ def main():
     parser.add_argument("--away", required=True, help="Away team name (as in results.csv)")
     parser.add_argument("--home-score", required=True, type=int)
     parser.add_argument("--away-score", required=True, type=int)
+    parser.add_argument("--et-home", type=int, default=None, help="Home score after extra time (knockout games only)")
+    parser.add_argument("--et-away", type=int, default=None, help="Away score after extra time (knockout games only)")
     args = parser.parse_args()
 
     config = load_config()
@@ -45,15 +51,22 @@ def main():
         "away_team": args.away,
         "home_score": args.home_score,
         "away_score": args.away_score,
+        "et_home_score": args.et_home,
+        "et_away_score": args.et_away,
         "stage": stage,
     }
 
     if mask.any():
-        live.loc[mask, ["home_score", "away_score", "stage"]] = [args.home_score, args.away_score, stage]
+        live.loc[mask, ["home_score", "away_score", "et_home_score", "et_away_score", "stage"]] = [
+            args.home_score, args.away_score, args.et_home, args.et_away, stage
+        ]
         print(f"Updated existing result: {args.home} {args.home_score}-{args.away_score} {args.away}")
     else:
         live = pd.concat([live, pd.DataFrame([row])], ignore_index=True)
         print(f"Recorded result: {args.home} {args.home_score}-{args.away_score} {args.away}")
+
+    if args.et_home is not None:
+        print(f"  (after extra time: {args.home} {args.et_home}-{args.et_away} {args.away})")
 
     live = live[LIVE_RESULTS_COLUMNS].sort_values("date")
     live.to_csv(out_path, index=False)
@@ -67,6 +80,8 @@ def main():
         away_team=args.away,
         actual_home_score=args.home_score,
         actual_away_score=args.away_score,
+        actual_et_home_score=args.et_home,
+        actual_et_away_score=args.et_away,
     )
     recorded_bg = record_actual_result(
         history_dir / "prematch_best_guess.csv",
@@ -75,6 +90,8 @@ def main():
         away_team=args.away,
         actual_home_score=args.home_score,
         actual_away_score=args.away_score,
+        actual_et_home_score=args.et_home,
+        actual_et_away_score=args.et_away,
     )
     if recorded_pred or recorded_bg:
         print("Recorded actual result on locked pre-match prediction(s)")
