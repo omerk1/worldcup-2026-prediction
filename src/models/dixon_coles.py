@@ -103,6 +103,33 @@ class DixonColesModel:
         matrix /= matrix.sum()
         return matrix
 
+    def score_matrix_120(
+        self,
+        home_team: str,
+        away_team: str,
+        host: bool = False,
+        max_goals: int = 8,
+    ) -> np.ndarray:
+        """120-minute score matrix for knockout games.
+
+        Decisive 90-min outcomes carry over unchanged — the game ends at 90,
+        no ET is played. Each draw outcome (k-k at 90) is spread through the
+        ET goal distribution: a 1-1 draw can become 1-1 at 120 (ET 0-0 →
+        pens), 2-1 at 120 (ET 1-0), 2-2 at 120 (ET 1-1 → pens), etc.
+        """
+        m90 = self.score_matrix(home_team, away_team, host=host, max_goals=max_goals)
+        lam_h, lam_a = self.expected_goals(home_team, away_team, host=False)
+        n = max_goals + 1
+        goals = np.arange(n)
+        m_et = np.outer(poisson.pmf(goals, lam_h / 3), poisson.pmf(goals, lam_a / 3))
+        m_et /= m_et.sum()
+
+        m120 = m90 * (1 - np.eye(n))  # copy decisive cells; draw cells start at 0
+        for k, p in enumerate(np.diag(m90)):
+            m120[k:, k:] += p * m_et[:n - k, :n - k]
+        m120 /= m120.sum()
+        return m120
+
     def predict(self, home_team: str, away_team: str, host: bool = False, max_goals: int = 8, top_n: int = 5) -> dict:
         matrix = self.score_matrix(home_team, away_team, host, max_goals)
         lam_h, lam_a = self.expected_goals(home_team, away_team, host)

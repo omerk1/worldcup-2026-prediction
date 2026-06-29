@@ -54,6 +54,33 @@ def test_strength_prior_handles_missing_data():
     assert attack_prior[2] == 0.0
 
 
+def test_score_matrix_120_sums_to_one():
+    model = make_model()
+    m120 = model.score_matrix_120("A", "B")
+    assert np.isclose(m120.sum(), 1.0, atol=1e-6)
+
+
+def test_score_matrix_120_decisive_cells_at_least_as_large():
+    model = make_model()
+    m90 = model.score_matrix("A", "B")
+    m120 = model.score_matrix_120("A", "B")
+    # Draw probability is scaled down; after renormalization the decisive cells
+    # absorb the difference, so every decisive cell in m120 is >= m90.
+    for h in range(9):
+        for a in range(9):
+            if h != a:
+                assert m120[h, a] >= m90[h, a] - 1e-12, f"cell ({h},{a}) shrank"
+
+
+def test_score_matrix_120_lower_draw_probability():
+    model = make_model()
+    m90 = model.score_matrix("A", "B")
+    m120 = model.score_matrix_120("A", "B")
+    draw_90 = sum(m90[i, i] for i in range(m90.shape[0]))
+    draw_120 = sum(m120[i, i] for i in range(m120.shape[0]))
+    assert draw_120 < draw_90
+
+
 def test_fit_dixon_coles_recovers_reasonable_params():
     rng = np.random.default_rng(0)
     n_matches = 200

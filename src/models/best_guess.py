@@ -11,6 +11,9 @@ which is not always maximized by the single most likely cell in the score
 matrix - a direction whose probability mass is concentrated in one cell can
 beat a slightly more probable cell whose direction's overall probability is
 lower.
+
+Pass a 120-minute matrix (DixonColesModel.score_matrix_120) for knockout
+rounds so that draw probabilities already reflect ET resolution.
 """
 from __future__ import annotations
 
@@ -23,17 +26,37 @@ _DIRECTIONS = {
 }
 
 
-def best_guess(matrix: np.ndarray, direction_points: float = 1, exact_points: float = 3) -> dict:
+def best_guess(
+    matrix: np.ndarray,
+    direction_points: float = 1,
+    exact_points: float = 3,
+) -> dict:
     max_goals = matrix.shape[0] - 1
+
+    p_home = float(sum(
+        matrix[h, a]
+        for h in range(max_goals + 1)
+        for a in range(max_goals + 1)
+        if h > a
+    ))
+    p_draw = float(sum(
+        matrix[h, a]
+        for h in range(max_goals + 1)
+        for a in range(max_goals + 1)
+        if h == a
+    ))
+    p_away = float(sum(
+        matrix[h, a]
+        for h in range(max_goals + 1)
+        for a in range(max_goals + 1)
+        if h < a
+    ))
+
+    direction_probs = {"home_win": p_home, "draw": p_draw, "away_win": p_away}
 
     candidates = []
     for direction, in_region in _DIRECTIONS.items():
-        direction_prob = float(sum(
-            matrix[h, a]
-            for h in range(max_goals + 1)
-            for a in range(max_goals + 1)
-            if in_region(h, a)
-        ))
+        direction_prob = direction_probs[direction]
         score_prob, h, a = max(
             (matrix[h, a], h, a)
             for h in range(max_goals + 1)

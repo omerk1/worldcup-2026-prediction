@@ -46,3 +46,5 @@ def test_best_guess_uses_custom_point_values():
     assert guess["best_guess_score"] == "1-1"
     assert guess["direction"] == "draw"
     assert round(guess["expected_points"], 2) == 10.70
+
+

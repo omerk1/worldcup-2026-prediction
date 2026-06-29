@@ -46,7 +46,12 @@ def main():
     for _, row in fixtures.iterrows():
         host = (not row["neutral"]) and (row["home_team"] in host_nations)
         scoring = config["scoring"][row["stage"]]
-        matrix = model.score_matrix(row["home_team"], row["away_team"], host=host)
+        is_knockout = row["stage"] != "group_stage"
+        matrix = (
+            model.score_matrix_120(row["home_team"], row["away_team"], host=host)
+            if is_knockout
+            else model.score_matrix(row["home_team"], row["away_team"], host=host)
+        )
         pred = model.predict(row["home_team"], row["away_team"], host=host)
         guess = best_guess(matrix, direction_points=scoring["direction"], exact_points=scoring["exact"])
         rows.append({
